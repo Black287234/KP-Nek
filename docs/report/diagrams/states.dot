@@ -1,0 +1,17 @@
+digraph States {
+  graph [rankdir=LR, fontname="Times New Roman", nodesep=0.5, ranksep=0.9, dpi=200];
+  node  [fontname="Times New Roman", fontsize=12, shape=box, style=rounded];
+  edge  [fontname="Times New Roman", fontsize=10];
+  start [shape=circle, label="", width=0.2, style=filled, fillcolor=black];
+  Stock  [label="На складе\n(исправно / есть износ)"];
+  Issued [label="У сотрудника"];
+  Repair [label="На складе,\nтребует ремонта"];
+  Off    [label="Списано\n(архив)"];
+  start -> Stock [label=" добавление "];
+  Stock -> Issued [label=" выдача "];
+  Issued -> Stock [label=" возврат (исправно,\nесть износ) "];
+  Issued -> Repair [label=" возврат\n(требует ремонта) "];
+  Repair -> Stock [label=" изменение состояния\n(после ремонта) "];
+  Stock -> Off [label=" списание "];
+  Repair -> Off [label=" списание "];
+}

@@ -1,0 +1,45 @@
+digraph ER {
+  graph [rankdir=LR, fontname="Times New Roman", nodesep=0.6, ranksep=1.1, dpi=200];
+  node  [shape=plain, fontname="Times New Roman", fontsize=12];
+  edge  [fontname="Times New Roman", fontsize=11, arrowhead=crow, arrowtail=tee, dir=both];
+
+  Equipment [label=<
+  <table border="0" cellborder="1" cellspacing="0" cellpadding="5">
+    <tr><td bgcolor="#e8e8e8"><b>Equipment (Оборудование)</b></td></tr>
+    <tr><td align="left">PK  Id : int</td></tr>
+    <tr><td align="left">InventoryNumber : string (уникальный)</td></tr>
+    <tr><td align="left">Name : string</td></tr>
+    <tr><td align="left">Category : string</td></tr>
+    <tr><td align="left">SerialNumber : string?</td></tr>
+    <tr><td align="left">Condition : Исправно | Есть износ | Требует ремонта</td></tr>
+    <tr><td align="left">IsWrittenOff : bool</td></tr>
+    <tr><td align="left">WriteOffReason : string?</td></tr>
+  </table>>];
+
+  Operation [label=<
+  <table border="0" cellborder="1" cellspacing="0" cellpadding="5">
+    <tr><td bgcolor="#e8e8e8"><b>EquipmentOperation (Операция)</b></td></tr>
+    <tr><td align="left">PK  Id : int</td></tr>
+    <tr><td align="left">FK  EquipmentId : int</td></tr>
+    <tr><td align="left">FK  EmployeeId : int? (выдача, возврат)</td></tr>
+    <tr><td align="left">Type : Выдача | Возврат | Изм. состояния | Списание</td></tr>
+    <tr><td align="left">Date : DateTime (дата операции)</td></tr>
+    <tr><td align="left">Condition : состояние на момент операции</td></tr>
+    <tr><td align="left">Comment : string?</td></tr>
+    <tr><td align="left">CreatedAt : DateTime</td></tr>
+  </table>>];
+
+  Employee [label=<
+  <table border="0" cellborder="1" cellspacing="0" cellpadding="5">
+    <tr><td bgcolor="#e8e8e8"><b>Employee (Сотрудник)</b></td></tr>
+    <tr><td align="left">PK  Id : int</td></tr>
+    <tr><td align="left">FullName : string</td></tr>
+    <tr><td align="left">PersonnelNumber : string (уникальный)</td></tr>
+    <tr><td align="left">Department : string</td></tr>
+    <tr><td align="left">Position : string?</td></tr>
+    <tr><td align="left">IsActive : bool</td></tr>
+  </table>>];
+
+  Equipment -> Operation [label=" 1 : N "];
+  Employee -> Operation [label=" 1 : N "];
+}

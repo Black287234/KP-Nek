@@ -1,0 +1,22 @@
+digraph Flow {
+  graph [rankdir=TB, fontname="Times New Roman", nodesep=0.5, ranksep=0.32, dpi=200];
+  node  [fontname="Times New Roman", fontsize=12, shape=box, width=3.2];
+  edge  [fontname="Times New Roman", fontsize=11];
+  S  [label="Начало: данные формы выдачи", style=rounded];
+  C1 [label="Оборудование и\nсотрудник выбраны?", shape=diamond, width=2.6];
+  C2 [label="Оборудование и\nсотрудник найдены?", shape=diamond, width=2.6];
+  C3 [label="Дата указана, не в будущем\nи не раньше последней\nоперации?", shape=diamond, width=3.0];
+  H  [label="Держатель = последняя выдача без возврата\n(вычисляется по истории операций)"];
+  C4 [label="Не списано, на складе,\nне требует ремонта,\nсотрудник работает?", shape=diamond, width=3.0];
+  W  [label="Сохранить операцию «Выдача»\n(дата, сотрудник, состояние, комментарий)"];
+  OK [label="Успех: оборудование у сотрудника", style=rounded];
+  E  [label="Отказ: понятное сообщение\n(операция не сохраняется)", style=rounded];
+  S -> C1;
+  C1 -> C2 [label=" да "];  C1 -> E [label=" нет "];
+  C2 -> C3 [label=" да "];  C2 -> E [label=" нет "];
+  C3 -> H  [label=" да "];  C3 -> E [label=" нет "];
+  H -> C4;
+  C4 -> W [label=" да "];   C4 -> E [label=" нет "];
+  W -> OK;
+  {rank=same; C2; E}
+}

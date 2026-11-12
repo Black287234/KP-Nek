@@ -1,0 +1,16 @@
+digraph UC {
+  graph [rankdir=LR, fontname="Times New Roman", nodesep=0.25, ranksep=1.0, dpi=200];
+  node  [fontname="Times New Roman", fontsize=12];
+  edge  [fontname="Times New Roman", fontsize=10, arrowhead=none];
+  Actor [label="Ответственный\nза оборудование", shape=box, style=rounded];
+  subgraph cluster_sys { label="Модуль учёта выдачи оборудования"; fontname="Times New Roman"; fontsize=12;
+    u1 [label="Вести справочник\nоборудования", shape=ellipse];
+    u2 [label="Вести справочник\nсотрудников", shape=ellipse];
+    u3 [label="Оформить выдачу", shape=ellipse];
+    u4 [label="Оформить возврат\nс указанием состояния", shape=ellipse];
+    u5 [label="Изменить состояние,\nсписать", shape=ellipse];
+    u6 [label="Смотреть оборудование\nу сотрудников", shape=ellipse];
+    u7 [label="Смотреть историю\nопераций", shape=ellipse];
+  }
+  Actor -> u1; Actor -> u2; Actor -> u3; Actor -> u4; Actor -> u5; Actor -> u6; Actor -> u7;
+}

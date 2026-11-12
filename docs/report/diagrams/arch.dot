@@ -1,0 +1,25 @@
+digraph Arch {
+  graph [rankdir=TB, fontname="Times New Roman", nodesep=0.3, ranksep=0.45, dpi=200];
+  node  [fontname="Times New Roman", fontsize=12, shape=box, style="rounded"];
+  edge  [fontname="Times New Roman", fontsize=10];
+
+  U [label="Браузер пользователя\n(ответственный за оборудование)", shape=box, style=""];
+  subgraph cluster_p { label="Слой представления"; fontname="Times New Roman"; fontsize=12; style=dashed;
+    C [label="Контроллеры MVC\nHome, Equipment, Employees, Operations"];
+    A [label="Контроллеры API\n/api/equipment, /api/onhand, /api/operations"];
+    V [label="Представления Razor (Views)\nформы и таблицы"];
+  }
+  subgraph cluster_s { label="Слой предметной логики (Services)"; fontname="Times New Roman"; fontsize=12; style=dashed;
+    OS [label="OperationService\nвыдача, возврат, состояние,\nсписание, у сотрудников, история"];
+    R  [label="OperationRules\nOnHandCalculator\n(правила без базы данных)"];
+    ES [label="EquipmentService\nEmployeeService"];
+  }
+  subgraph cluster_d { label="Слой данных"; fontname="Times New Roman"; fontsize=12; style=dashed;
+    DB [label="AppDbContext (EF Core)\nМиграции, DbSeeder"];
+    F  [label="Файл базы SQLite\nequipment.db", shape=cylinder, style=""];
+  }
+  U -> C [label=" HTTP "]; U -> A [label=" JSON "];
+  C -> V;
+  C -> OS; C -> ES; A -> OS; A -> ES;
+  OS -> R; OS -> DB; ES -> DB; DB -> F;
+}
