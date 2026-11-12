@@ -1,0 +1,15 @@
+/ 200
+/Equipment 200
+/Equipment?Search=ноутбук 200
+/Equipment?Condition=NeedsRepair&ShowWrittenOff=true 200
+/Equipment/Details/1 200
+/Equipment/Details/999 404
+/Equipment/Create 200
+/Equipment/Edit/1 200
+/Employees 200
+/Employees/Details/1 200
+/Employees/Create 200
+/Employees/Edit/1 200
+/api/equipment 200
+/api/equipment/999 404
+/api/employees 200
