@@ -1,28 +1,18 @@
 using System.Diagnostics;
 using EquipmentIssue.Models;
 using EquipmentIssue.Services;
-using EquipmentIssue.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EquipmentIssue.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly EquipmentService _equipment;
-    private readonly EmployeeService _employees;
+    private readonly OperationService _operations;
 
-    public HomeController(EquipmentService equipment, EmployeeService employees)
-    {
-        _equipment = equipment;
-        _employees = employees;
-    }
+    public HomeController(OperationService operations) => _operations = operations;
 
-    public IActionResult Index()
-    {
-        ViewData["EquipmentCount"] = _equipment.Search(new EquipmentFilter()).Count;
-        ViewData["EmployeeCount"] = _employees.GetAll(includeInactive: false).Count;
-        return View();
-    }
+    // Главная: сводка по оборудованию
+    public IActionResult Index() => View(_operations.GetSummary());
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() =>

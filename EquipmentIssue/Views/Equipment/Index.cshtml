@@ -10,11 +10,19 @@
 
 <form method="get" class="card card-body mb-3">
     <div class="row g-2 align-items-end">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label small mb-1" for="Search">Поиск</label>
             <input class="form-control" id="Search" name="Search" value="@f.Search" placeholder="наименование, инв. или серийный номер" />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="Location">Где</label>
+            <select class="form-select" id="Location" name="Location">
+                <option value="">везде</option>
+                <option value="stock" selected="@(f.Location == "stock")">на складе</option>
+                <option value="issued" selected="@(f.Location == "issued")">у сотрудников</option>
+            </select>
+        </div>
+        <div class="col-md-2">
             <label class="form-label small mb-1" for="Category">Категория</label>
             <select class="form-select" id="Category" name="Category">
                 <option value="">все</option>
@@ -48,7 +56,7 @@
 <div class="card">
     <table class="table mb-0 align-middle">
         <thead>
-            <tr><th>Инв. номер</th><th>Наименование</th><th>Категория</th><th>Серийный номер</th><th>Состояние</th><th></th></tr>
+            <tr><th>Инв. номер</th><th>Наименование</th><th>Категория</th><th>Состояние</th><th>Где находится</th><th></th></tr>
         </thead>
         <tbody>
         @foreach (var e in Model.Items)
@@ -63,8 +71,22 @@
                     }
                 </td>
                 <td>@e.Category</td>
-                <td>@e.SerialNumber</td>
                 <td><partial name="_ConditionBadge" model="e.Condition" /></td>
+                <td>
+                    @if (e.IsWrittenOff)
+                    {
+                        <span class="text-muted">списано</span>
+                    }
+                    else if (Model.Issued.TryGetValue(e.Id, out var issue) && issue.Employee != null)
+                    {
+                        <span>у <a asp-controller="Employees" asp-action="Details" asp-route-id="@issue.EmployeeId">@NameFormat.Short(issue.Employee.FullName)</a></span>
+                        <span class="text-muted small">с @issue.Date.ToString("dd.MM.yyyy")</span>
+                    }
+                    else
+                    {
+                        <span class="text-success">на складе</span>
+                    }
+                </td>
                 <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Карточка</a></td>
             </tr>
         }

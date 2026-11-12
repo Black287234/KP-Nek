@@ -1,3 +1,4 @@
+@model EquipmentIssue.ViewModels.Summary
 @{
     ViewData["Title"] = "Главная";
 }
@@ -7,10 +8,14 @@
     выдача и возврат с датой операции и состоянием, список оборудования у сотрудников, история операций.
 </p>
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="card p-3"><div class="stat">@ViewData["EquipmentCount"]</div><div>единиц оборудования</div></div></div>
-    <div class="col-md-3"><div class="card p-3"><div class="stat">@ViewData["EmployeeCount"]</div><div>работающих сотрудников</div></div></div>
+    <div class="col-6 col-md-3"><div class="card p-3"><div class="stat">@Model.Total</div><div>единиц в учёте</div></div></div>
+    <div class="col-6 col-md-3"><div class="card p-3"><div class="stat">@Model.InStock</div><div>на складе</div></div></div>
+    <div class="col-6 col-md-3"><div class="card p-3"><div class="stat">@Model.Issued</div><div>выдано (у @Model.EmployeesWithEquipment сотр.)</div></div></div>
+    <div class="col-6 col-md-3"><div class="card p-3"><div class="stat text-danger">@Model.NeedsRepair</div><div>требует ремонта</div></div></div>
 </div>
 <div class="d-flex flex-wrap gap-2">
-    <a class="btn btn-primary" asp-controller="Equipment" asp-action="Index">Справочник оборудования</a>
-    <a class="btn btn-outline-secondary" asp-controller="Employees" asp-action="Index">Сотрудники</a>
+    <a class="btn btn-primary" asp-controller="Operations" asp-action="Issue">Выдать оборудование</a>
+    <a class="btn btn-outline-primary" asp-controller="Operations" asp-action="Return">Принять возврат</a>
+    <a class="btn btn-outline-secondary" asp-controller="Operations" asp-action="OnHand">Оборудование у сотрудников</a>
+    <a class="btn btn-outline-secondary" asp-controller="Operations" asp-action="Index">История операций</a>
 </div>

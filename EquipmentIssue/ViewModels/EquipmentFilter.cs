@@ -9,5 +9,7 @@ public class EquipmentFilter
     public string? Search { get; set; }
     public string? Category { get; set; }
     public EquipmentCondition? Condition { get; set; }
+    /// <summary>Местонахождение: "stock" — на складе, "issued" — у сотрудников, пусто — всё.</summary>
+    public string? Location { get; set; }
     public bool ShowWrittenOff { get; set; }
 }

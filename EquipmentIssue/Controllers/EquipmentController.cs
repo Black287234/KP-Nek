@@ -4,31 +4,47 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EquipmentIssue.Controllers;
 
-/// <summary>Страницы справочника оборудования.</summary>
+/// <summary>Страницы справочника оборудования: список, карточка, добавление, изменение, состояние, списание.</summary>
 public class EquipmentController : Controller
 {
     private readonly EquipmentService _equipment;
+    private readonly OperationService _operations;
 
-    public EquipmentController(EquipmentService equipment) => _equipment = equipment;
+    public EquipmentController(EquipmentService equipment, OperationService operations)
+    {
+        _equipment = equipment;
+        _operations = operations;
+    }
 
-    // GET /Equipment?Search=ноутбук&Category=Ноутбуки
+    // GET /Equipment?Search=ноутбук&Location=issued
     public IActionResult Index([FromQuery] EquipmentFilter filter)
     {
+        var issued = _operations.CurrentIssues();
         var model = new EquipmentListViewModel
         {
             Filter = filter,
-            Items = _equipment.Search(filter),
-            Categories = _equipment.Categories()
+            Items = _equipment.Search(filter, issued),
+            Categories = _equipment.Categories(),
+            Issued = issued
         };
         return View(model);
     }
 
-    // GET /Equipment/Details/5
+    // GET /Equipment/Details/5 — карточка: где находится и история операций
     public IActionResult Details(int id)
     {
         var item = _equipment.GetById(id);
         if (item == null) return NotFoundPage();
-        return View(item);
+        var issue = _operations.CurrentIssue(id);
+        var today = _operations.Today;
+        return View(new EquipmentCardViewModel
+        {
+            Item = item,
+            CurrentIssue = issue,
+            DaysOnHand = issue == null ? 0 : OnHandCalculator.DaysOnHand(issue.Date, today),
+            History = _operations.GetHistory(new HistoryFilter { EquipmentId = id }),
+            Today = today
+        });
     }
 
     [HttpGet]
@@ -77,6 +93,26 @@ public class EquipmentController : Controller
             return View(form);
         }
         TempData["Message"] = "Изменения сохранены";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    // POST /Equipment/ChangeCondition/5 — например, после ремонта
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult ChangeCondition(int id, ConditionForm form) =>
+        AfterAction(id, _operations.ChangeCondition(id, form));
+
+    // POST /Equipment/WriteOff/5 — списание вместо удаления
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult WriteOff(int id, WriteOffForm form) =>
+        AfterAction(id, _operations.WriteOff(id, form));
+
+    private IActionResult AfterAction(int id, OperationResult result)
+    {
+        if (result.Kind == ErrorKind.NotFound) return NotFoundPage();
+        if (result.Success) TempData["Message"] = result.Message;
+        else TempData["Error"] = result.Error;
         return RedirectToAction(nameof(Details), new { id });
     }
 

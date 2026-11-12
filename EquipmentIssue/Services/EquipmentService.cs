@@ -16,7 +16,8 @@ public class EquipmentService
     /// Поиск и фильтры. Поиск выполняется в памяти: в SQLite сравнение
     /// без учёта регистра работает только для латиницы, а названия у нас русские.
     /// </summary>
-    public List<Equipment> Search(EquipmentFilter filter)
+    /// <param name="issued">Текущие выдачи (Id оборудования → выдача) — нужны для фильтра по местонахождению.</param>
+    public List<Equipment> Search(EquipmentFilter filter, IReadOnlyDictionary<int, EquipmentOperation>? issued = null)
     {
         IEnumerable<Equipment> items = _db.Equipment.AsNoTracking().OrderBy(e => e.InventoryNumber).ToList();
 
@@ -33,6 +34,10 @@ public class EquipmentService
             items = items.Where(e => e.Category == filter.Category);
         if (filter.Condition != null)
             items = items.Where(e => e.Condition == filter.Condition);
+        if (issued != null && filter.Location == "issued")
+            items = items.Where(e => issued.ContainsKey(e.Id));
+        if (issued != null && filter.Location == "stock")
+            items = items.Where(e => !e.IsWrittenOff && !issued.ContainsKey(e.Id));
 
         return items.ToList();
     }

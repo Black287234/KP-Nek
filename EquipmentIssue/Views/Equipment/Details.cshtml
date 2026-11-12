@@ -1,26 +1,89 @@
-@model Equipment
+@model EquipmentIssue.ViewModels.EquipmentCardViewModel
 @{
-    ViewData["Title"] = Model.Name;
+    var e = Model.Item;
+    var issue = Model.CurrentIssue;
+    ViewData["Title"] = e.Name;
+    string today = Model.Today.ToString("yyyy-MM-dd");
 }
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-        <div class="text-muted small">@Model.InventoryNumber · @Model.Category</div>
-        <h1 class="h3 mb-0">@Model.Name</h1>
+        <div class="text-muted small">@e.InventoryNumber · @e.Category</div>
+        <h1 class="h3 mb-0">@e.Name</h1>
     </div>
-    @if (!Model.IsWrittenOff)
+    <div class="d-flex flex-wrap gap-2">
+        @if (!e.IsWrittenOff && issue == null && e.Condition != EquipmentCondition.NeedsRepair)
+        {
+            <a class="btn btn-primary" asp-controller="Operations" asp-action="Issue" asp-route-equipmentId="@e.Id">Выдать</a>
+        }
+        @if (issue != null)
+        {
+            <a class="btn btn-success" asp-controller="Operations" asp-action="Return" asp-route-equipmentId="@e.Id">Оформить возврат</a>
+        }
+        @if (!e.IsWrittenOff)
+        {
+            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@e.Id">Изменить</a>
+        }
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card card-body h-100">
+            <dl class="row mb-0">
+                <dt class="col-sm-5">Инвентарный номер</dt><dd class="col-sm-7">@e.InventoryNumber</dd>
+                <dt class="col-sm-5">Серийный номер</dt><dd class="col-sm-7">@(e.SerialNumber ?? "—")</dd>
+                <dt class="col-sm-5">Состояние</dt><dd class="col-sm-7"><partial name="_ConditionBadge" model="e.Condition" /></dd>
+                <dt class="col-sm-5">Где находится</dt>
+                <dd class="col-sm-7">
+                    @if (e.IsWrittenOff)
+                    {
+                        <span class="badge bg-dark">Списано</span> <span class="small">@e.WriteOffReason</span>
+                    }
+                    else if (issue != null && issue.Employee != null)
+                    {
+                        <span>у <a asp-controller="Employees" asp-action="Details" asp-route-id="@issue.EmployeeId">@issue.Employee.FullName</a></span>
+                        <div class="small text-muted">выдано @issue.Date.ToString("dd.MM.yyyy"), на руках @Model.DaysOnHand дн.</div>
+                    }
+                    else
+                    {
+                        <span class="text-success">на складе</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+    @if (!e.IsWrittenOff && issue == null)
     {
-        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Изменить</a>
+        <div class="col-lg-6">
+            <div class="card card-body h-100">
+                <h2 class="h6">Изменить состояние</h2>
+                <form method="post" asp-action="ChangeCondition" asp-route-id="@e.Id" class="row g-2 mb-3">
+                    <div class="col-sm-5">
+                        <select name="Condition" class="form-select form-select-sm">
+                            @foreach (var c in Enum.GetValues<EquipmentCondition>())
+                            {
+                                <option value="@c" selected="@(c == e.Condition)">@c.DisplayName()</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-7"><input name="Comment" class="form-control form-control-sm" placeholder="причина, например «после ремонта»" /></div>
+                    <input type="hidden" name="Date" value="@today" />
+                    <div class="col-12"><button type="submit" class="btn btn-sm btn-outline-primary">Сохранить состояние</button></div>
+                </form>
+                <h2 class="h6">Списать</h2>
+                <form method="post" asp-action="WriteOff" asp-route-id="@e.Id" class="row g-2">
+                    <div class="col-sm-8"><input name="Reason" class="form-control form-control-sm" placeholder="причина списания" /></div>
+                    <input type="hidden" name="Date" value="@today" />
+                    <div class="col-sm-4"><button type="submit" class="btn btn-sm btn-outline-danger w-100">Списать</button></div>
+                </form>
+            </div>
+        </div>
     }
 </div>
-<div class="card card-body mb-3">
-    <dl class="row mb-0">
-        <dt class="col-sm-3">Инвентарный номер</dt><dd class="col-sm-9">@Model.InventoryNumber</dd>
-        <dt class="col-sm-3">Серийный номер</dt><dd class="col-sm-9">@(Model.SerialNumber ?? "—")</dd>
-        <dt class="col-sm-3">Состояние</dt><dd class="col-sm-9"><partial name="_ConditionBadge" model="Model.Condition" /></dd>
-        @if (Model.IsWrittenOff)
-        {
-            <dt class="col-sm-3">Списано</dt><dd class="col-sm-9">@Model.WriteOffReason</dd>
-        }
-    </dl>
-</div>
-<a class="btn btn-outline-secondary" asp-action="Index">К списку</a>
+
+<h2 class="h5">История операций</h2>
+@{
+    ViewData["HideEquipment"] = true;
+}
+<partial name="_OperationsTable" model="Model.History" view-data="ViewData" />
+<a class="btn btn-outline-secondary mt-3" asp-action="Index">К списку</a>

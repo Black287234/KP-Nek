@@ -1,6 +1,7 @@
 @model List<Employee>
 @{
     ViewData["Title"] = "Сотрудники";
+    var onHand = ViewData["OnHand"] as Dictionary<int, int> ?? new Dictionary<int, int>();
 }
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">Сотрудники</h1>
@@ -12,7 +13,7 @@
 </form>
 <div class="card">
     <table class="table mb-0 align-middle">
-        <thead><tr><th>ФИО</th><th>Таб. номер</th><th>Подразделение</th><th>Должность</th><th></th></tr></thead>
+        <thead><tr><th>ФИО</th><th>Таб. номер</th><th>Подразделение</th><th>Должность</th><th>На руках</th><th></th></tr></thead>
         <tbody>
         @foreach (var e in Model)
         {
@@ -27,12 +28,13 @@
                 <td>@e.PersonnelNumber</td>
                 <td>@e.Department</td>
                 <td>@e.Position</td>
+                <td>@(onHand.TryGetValue(e.Id, out var n) ? $"{n} ед." : "—")</td>
                 <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Карточка</a></td>
             </tr>
         }
         @if (Model.Count == 0)
         {
-            <tr><td colspan="5" class="text-center text-muted py-4">Ничего не найдено</td></tr>
+            <tr><td colspan="6" class="text-center text-muted py-4">Ничего не найдено</td></tr>
         }
         </tbody>
     </table>

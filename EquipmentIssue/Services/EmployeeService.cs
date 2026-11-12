@@ -75,6 +75,17 @@ public class EmployeeService
         if (e.IsActive == active)
             return OperationResult.Invalid(active ? "Сотрудник уже отмечен как работающий" : "Сотрудник уже отмечен как уволенный");
 
+        if (!active)
+        {
+            // Нельзя уволить сотрудника, у которого на руках оборудование: сначала возврат
+            var movements = _db.Operations.AsNoTracking()
+                .Where(o => o.Type == OperationType.Issue || o.Type == OperationType.Return)
+                .ToList();
+            int onHand = OnHandCalculator.CurrentIssues(movements).Values.Count(o => o.EmployeeId == id);
+            if (onHand > 0)
+                return OperationResult.Conflict($"У сотрудника {NameFormat.Short(e.FullName)} на руках оборудование ({onHand} ед.). Сначала оформите возврат");
+        }
+
         e.IsActive = active;
         _db.SaveChanges();
         return OperationResult.Ok(e.Id);

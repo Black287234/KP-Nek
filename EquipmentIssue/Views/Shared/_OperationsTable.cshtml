@@ -1,0 +1,63 @@
+@model List<EquipmentOperation>
+@* Таблица операций: используется в истории, карточке оборудования и карточке сотрудника *@
+@{
+    bool showEquipment = ViewData["HideEquipment"] as bool? != true;
+    bool showEmployee = ViewData["HideEmployee"] as bool? != true;
+}
+<div class="card">
+    <table class="table table-sm mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Дата</th><th>Операция</th>
+                @if (showEquipment) { <th>Оборудование</th> }
+                @if (showEmployee) { <th>Сотрудник</th> }
+                <th>Состояние</th><th>Комментарий</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var op in Model)
+        {
+            var css = op.Type switch
+            {
+                OperationType.Issue => "bg-primary",
+                OperationType.Return => "bg-success",
+                OperationType.WriteOff => "bg-dark",
+                _ => "bg-secondary"
+            };
+            <tr>
+                <td class="text-nowrap">@op.Date.ToString("dd.MM.yyyy")</td>
+                <td><span class="badge @css">@op.Type.DisplayName()</span></td>
+                @if (showEquipment)
+                {
+                    <td>
+                        @if (op.Equipment != null)
+                        {
+                            <a asp-controller="Equipment" asp-action="Details" asp-route-id="@op.EquipmentId">@op.Equipment.InventoryNumber</a>
+                            <span class="text-muted">@op.Equipment.Name</span>
+                        }
+                    </td>
+                }
+                @if (showEmployee)
+                {
+                    <td>
+                        @if (op.Employee != null)
+                        {
+                            <a asp-controller="Employees" asp-action="Details" asp-route-id="@op.EmployeeId">@op.Employee.FullName</a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                }
+                <td><partial name="_ConditionBadge" model="op.Condition" /></td>
+                <td class="text-small">@op.Comment</td>
+            </tr>
+        }
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="6" class="text-center text-muted py-4">Операций нет</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

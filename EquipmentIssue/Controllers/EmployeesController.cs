@@ -8,21 +8,36 @@ namespace EquipmentIssue.Controllers;
 public class EmployeesController : Controller
 {
     private readonly EmployeeService _employees;
+    private readonly OperationService _operations;
 
-    public EmployeesController(EmployeeService employees) => _employees = employees;
+    public EmployeesController(EmployeeService employees, OperationService operations)
+    {
+        _employees = employees;
+        _operations = operations;
+    }
 
     // GET /Employees?search=иванов
     public IActionResult Index(string? search)
     {
         ViewData["Search"] = search;
+        // Сколько единиц оборудования на руках у каждого сотрудника
+        ViewData["OnHand"] = _operations.CurrentIssues().Values
+            .GroupBy(o => o.EmployeeId ?? 0)
+            .ToDictionary(g => g.Key, g => g.Count());
         return View(_employees.GetAll(includeInactive: true, search: search));
     }
 
+    // GET /Employees/Details/5 — карточка: оборудование на руках и история
     public IActionResult Details(int id)
     {
         var e = _employees.GetById(id);
         if (e == null) return NotFoundPage();
-        return View(e);
+        return View(new EmployeeCardViewModel
+        {
+            Employee = e,
+            OnHand = _operations.GetOnHand(new OnHandFilter { EmployeeId = id }),
+            History = _operations.GetHistory(new HistoryFilter { EmployeeId = id })
+        });
     }
 
     [HttpGet]
@@ -73,7 +88,7 @@ public class EmployeesController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    // POST /Employees/SetActive/5?active=false — увольнение или восстановление
+    // POST /Employees/SetActive/5 — увольнение или восстановление
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult SetActive(int id, bool active)

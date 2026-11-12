@@ -1,0 +1,36 @@
+@model EquipmentIssue.ViewModels.ReturnForm
+@{
+    ViewData["Title"] = "Возврат оборудования";
+    var equipmentList = ViewData["EquipmentList"] as List<SelectListItem> ?? new List<SelectListItem>();
+}
+<h1 class="h3 mb-1">Возврат оборудования</h1>
+<p class="text-muted">Сотрудник определяется автоматически — тот, кому оборудование выдано. Укажите состояние при возврате.</p>
+<partial name="_Errors" />
+<form method="post" class="card card-body" style="max-width: 720px">
+    <div class="mb-3">
+        <label asp-for="EquipmentId" class="form-label"></label>
+        <select asp-for="EquipmentId" asp-items="equipmentList" class="form-select">
+            <option value="">— выберите выданное оборудование —</option>
+        </select>
+    </div>
+    <div class="row g-3 mb-3">
+        <div class="col-sm-5">
+            <label asp-for="Date" class="form-label"></label>
+            <input asp-for="Date" class="form-control" />
+        </div>
+        <div class="col-sm-7">
+            <label asp-for="Condition" class="form-label"></label>
+            <select asp-for="Condition" asp-items="Html.GetEnumSelectList<EquipmentCondition>()" class="form-select">
+                <option value="">— выберите состояние —</option>
+            </select>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Comment" class="form-label"></label>
+        <input asp-for="Comment" class="form-control" placeholder="обязательно, если оборудование требует ремонта" />
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Оформить возврат</button>
+        <a class="btn btn-outline-secondary" asp-action="OnHand">Отмена</a>
+    </div>
+</form>

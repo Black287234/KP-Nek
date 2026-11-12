@@ -1,0 +1,63 @@
+@model EquipmentIssue.ViewModels.OnHandViewModel
+@{
+    ViewData["Title"] = "Оборудование у сотрудников";
+    var f = Model.Filter;
+}
+<h1 class="h3 mb-3">Оборудование у сотрудников</h1>
+<form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small mb-1" for="EmployeeId">Сотрудник</label>
+            <select class="form-select" id="EmployeeId" name="EmployeeId">
+                <option value="">все</option>
+                @foreach (var e in Model.Employees)
+                {
+                    <option value="@e.Id" selected="@(e.Id == f.EmployeeId)">@e.FullName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="Department">Подразделение</label>
+            <select class="form-select" id="Department" name="Department">
+                <option value="">все</option>
+                @foreach (var d in Model.Departments)
+                {
+                    <option value="@d" selected="@(d == f.Department)">@d</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="Search">Оборудование</label>
+            <input class="form-control" id="Search" name="Search" value="@f.Search" placeholder="наименование или инв. номер" />
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-outline-primary" type="submit">Показать</button>
+            <a class="btn btn-link" asp-action="OnHand">Сброс</a>
+        </div>
+    </div>
+</form>
+<div class="card">
+    <table class="table mb-0 align-middle">
+        <thead><tr><th>Сотрудник</th><th>Подразделение</th><th>Инв. номер</th><th>Оборудование</th><th>Выдано</th><th>Дней</th><th>Состояние</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr>
+                <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@r.Employee.Id">@r.Employee.FullName</a></td>
+                <td>@r.Employee.Department</td>
+                <td><a asp-controller="Equipment" asp-action="Details" asp-route-id="@r.Equipment.Id">@r.Equipment.InventoryNumber</a></td>
+                <td>@r.Equipment.Name</td>
+                <td>@r.IssueDate.ToString("dd.MM.yyyy")</td>
+                <td>@r.DaysOnHand</td>
+                <td><partial name="_ConditionBadge" model="r.Equipment.Condition" /></td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-success" asp-action="Return" asp-route-equipmentId="@r.Equipment.Id">Возврат</a></td>
+            </tr>
+        }
+        @if (Model.Rows.Count == 0)
+        {
+            <tr><td colspan="8" class="text-center text-muted py-4">Ничего не найдено</td></tr>
+        }
+        </tbody>
+    </table>
+</div>
+<p class="text-muted small mt-2">Найдено: @Model.Rows.Count</p>

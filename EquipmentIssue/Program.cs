@@ -1,11 +1,14 @@
 using EquipmentIssue.Data;
 using EquipmentIssue.Services;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Подключаем MVC: контроллеры + представления (страницы Razor)
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    // Перечисления в JSON передаются строками: "Issue", "NeedsRepair"
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // База данных SQLite, строка подключения — в appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -14,6 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Сервисы с предметной логикой. Scoped — один объект на один HTTP-запрос
 builder.Services.AddScoped<EquipmentService>();
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<OperationService>();
+
+// Часы приложения. В тестах вместо системных подставляются «остановленные» часы
+builder.Services.AddSingleton(TimeProvider.System);
 
 var app = builder.Build();
 
@@ -22,7 +29,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
-    DbSeeder.Seed(db);
+    DbSeeder.Seed(db, TimeProvider.System.GetLocalNow().DateTime);
 }
 
 if (!app.Environment.IsDevelopment())

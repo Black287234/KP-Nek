@@ -1,0 +1,58 @@
+@model EquipmentIssue.ViewModels.HistoryViewModel
+@{
+    ViewData["Title"] = "История операций";
+    var f = Model.Filter;
+}
+<h1 class="h3 mb-3">История операций</h1>
+<form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="EquipmentId">Оборудование</label>
+            <select class="form-select" id="EquipmentId" name="EquipmentId">
+                <option value="">всё</option>
+                @foreach (var e in Model.AllEquipment)
+                {
+                    <option value="@e.Id" selected="@(e.Id == f.EquipmentId)">@e.InventoryNumber — @e.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="EmployeeId">Сотрудник</label>
+            <select class="form-select" id="EmployeeId" name="EmployeeId">
+                <option value="">все</option>
+                @foreach (var e in Model.AllEmployees)
+                {
+                    <option value="@e.Id" selected="@(e.Id == f.EmployeeId)">@e.FullName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="Type">Операция</label>
+            <select class="form-select" id="Type" name="Type">
+                <option value="">все</option>
+                @foreach (var t in Enum.GetValues<OperationType>())
+                {
+                    <option value="@t" selected="@(t == f.Type)">@t.DisplayName()</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="From">С</label>
+            <input class="form-control" type="date" id="From" name="From" value="@f.From?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="To">По</label>
+            <input class="form-control" type="date" id="To" name="To" value="@f.To?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button class="btn btn-outline-primary" type="submit">Показать</button>
+            <a class="btn btn-link" asp-action="Index">Сброс</a>
+        </div>
+    </div>
+</form>
+@if (Model.FilterError != null)
+{
+    <div class="alert alert-warning">@Model.FilterError</div>
+}
+<partial name="_OperationsTable" model="Model.Items" />
+<p class="text-muted small mt-2">Найдено операций: @Model.Items.Count</p>

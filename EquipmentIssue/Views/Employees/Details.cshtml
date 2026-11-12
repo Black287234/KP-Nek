@@ -1,27 +1,62 @@
-@model Employee
+@model EquipmentIssue.ViewModels.EmployeeCardViewModel
 @{
-    ViewData["Title"] = Model.FullName;
+    var e = Model.Employee;
+    ViewData["Title"] = e.FullName;
 }
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-        <div class="text-muted small">@Model.PersonnelNumber · @Model.Department</div>
-        <h1 class="h3 mb-0">@Model.FullName @if (!Model.IsActive) { <span class="badge bg-secondary">Уволен</span> }</h1>
+        <div class="text-muted small">@e.PersonnelNumber · @e.Department</div>
+        <h1 class="h3 mb-0">@e.FullName @if (!e.IsActive) { <span class="badge bg-secondary">Уволен</span> }</h1>
     </div>
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Изменить</a>
-        <form method="post" asp-action="SetActive" asp-route-id="@Model.Id">
-            <input type="hidden" name="active" value="@(Model.IsActive ? "false" : "true")" />
-            <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">
-                @(Model.IsActive ? "Отметить увольнение" : "Восстановить")
+    <div class="d-flex flex-wrap gap-2">
+        @if (e.IsActive)
+        {
+            <a class="btn btn-primary" asp-controller="Operations" asp-action="Issue" asp-route-employeeId="@e.Id">Выдать оборудование</a>
+        }
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@e.Id">Изменить</a>
+        <form method="post" asp-action="SetActive" asp-route-id="@e.Id">
+            <input type="hidden" name="active" value="@(e.IsActive ? "false" : "true")" />
+            <button type="submit" class="btn @(e.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                @(e.IsActive ? "Отметить увольнение" : "Восстановить")
             </button>
         </form>
     </div>
 </div>
-<div class="card card-body mb-3">
+<div class="card card-body mb-4">
     <dl class="row mb-0">
-        <dt class="col-sm-3">Должность</dt><dd class="col-sm-9">@(Model.Position ?? "—")</dd>
-        <dt class="col-sm-3">Подразделение</dt><dd class="col-sm-9">@Model.Department</dd>
-        <dt class="col-sm-3">Статус</dt><dd class="col-sm-9">@(Model.IsActive ? "работает" : "уволен")</dd>
+        <dt class="col-sm-3">Должность</dt><dd class="col-sm-9">@(e.Position ?? "—")</dd>
+        <dt class="col-sm-3">Подразделение</dt><dd class="col-sm-9">@e.Department</dd>
+        <dt class="col-sm-3">Статус</dt><dd class="col-sm-9">@(e.IsActive ? "работает" : "уволен")</dd>
     </dl>
 </div>
-<a class="btn btn-outline-secondary" asp-action="Index">К списку</a>
+
+<h2 class="h5">Оборудование на руках (@Model.OnHand.Count)</h2>
+<div class="card mb-4">
+    <table class="table table-sm mb-0 align-middle">
+        <thead><tr><th>Инв. номер</th><th>Наименование</th><th>Выдано</th><th>Дней</th><th>Состояние</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.OnHand)
+        {
+            <tr>
+                <td><a asp-controller="Equipment" asp-action="Details" asp-route-id="@r.Equipment.Id">@r.Equipment.InventoryNumber</a></td>
+                <td>@r.Equipment.Name</td>
+                <td>@r.IssueDate.ToString("dd.MM.yyyy")</td>
+                <td>@r.DaysOnHand</td>
+                <td><partial name="_ConditionBadge" model="r.Equipment.Condition" /></td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-success" asp-controller="Operations" asp-action="Return" asp-route-equipmentId="@r.Equipment.Id">Возврат</a></td>
+            </tr>
+        }
+        @if (Model.OnHand.Count == 0)
+        {
+            <tr><td colspan="6" class="text-center text-muted py-3">Оборудования на руках нет</td></tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<h2 class="h5">История операций</h2>
+@{
+    ViewData["HideEmployee"] = true;
+}
+<partial name="_OperationsTable" model="Model.History" view-data="ViewData" />
+<a class="btn btn-outline-secondary mt-3" asp-action="Index">К списку</a>
