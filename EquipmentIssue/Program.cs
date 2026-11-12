@@ -1,4 +1,5 @@
 using EquipmentIssue.Data;
+using EquipmentIssue.Infrastructure;
 using EquipmentIssue.Services;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Подключаем MVC: контроллеры + представления (страницы Razor)
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(ValidationMessages.Configure)   // русские сообщения привязки данных
     // Перечисления в JSON передаются строками: "Issue", "NeedsRepair"
-    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    // Неверный JSON в запросе к API → 400 и { error } по-русски
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = ValidationMessages.ApiResponse);
 
 // База данных SQLite, строка подключения — в appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>

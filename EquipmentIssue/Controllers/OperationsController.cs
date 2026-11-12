@@ -34,6 +34,11 @@ public class OperationsController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Issue(IssueForm form)
     {
+        if (!ModelState.IsValid)   // в форму пришло значение, которое нельзя прочитать
+        {
+            FillIssueLists();
+            return View(form);
+        }
         var result = _operations.Issue(form);
         if (!result.Success)
         {
@@ -59,6 +64,11 @@ public class OperationsController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Return(ReturnForm form)
     {
+        if (!ModelState.IsValid)
+        {
+            FillReturnLists();
+            return View(form);
+        }
         var result = _operations.Return(form);
         if (!result.Success)
         {

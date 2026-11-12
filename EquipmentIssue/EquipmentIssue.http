@@ -1,0 +1,64 @@
+### Ручные проверки API модуля учёта выдачи оборудования
+### Visual Studio / VS Code (REST Client): нажмите «Send Request» над запросом.
+@host = http://localhost:5070
+@today = 2026-11-12
+
+### 1. Справочник оборудования (поиск)
+GET {{host}}/api/equipment?search=ноутбук
+
+### 2. Неизвестное оборудование → 404 { error }
+GET {{host}}/api/equipment/999
+
+### 3. Сотрудники
+GET {{host}}/api/employees
+
+### 4. Оборудование у сотрудников (фильтр по подразделению)
+GET {{host}}/api/onhand?department=IT-отдел
+
+### 5. История: только возвраты за период
+GET {{host}}/api/operations?type=Return&from=2026-10-01&to=2026-11-30
+
+### 6. История: начало позже окончания → 400
+GET {{host}}/api/operations?from=2026-11-30&to=2026-10-01
+
+### 7. Выдача на складе → 201 (OB-0003, сотрудник Попова, Id смотрите в запросах 1 и 3)
+POST {{host}}/api/operations/issue
+Content-Type: application/json
+
+{ "equipmentId": 3, "employeeId": 4, "date": "{{today}}", "comment": "Для вебинаров" }
+
+### 8. Главное правило: повторная выдача того же оборудования → 409 «уже выдано»
+POST {{host}}/api/operations/issue
+Content-Type: application/json
+
+{ "equipmentId": 3, "employeeId": 1, "date": "{{today}}" }
+
+### 9. Выдача уволенному сотруднику (Фёдорова, Id 8) → 409
+POST {{host}}/api/operations/issue
+Content-Type: application/json
+
+{ "equipmentId": 5, "employeeId": 8, "date": "{{today}}" }
+
+### 10. Возврат «Требует ремонта» без комментария → 400
+POST {{host}}/api/operations/return
+Content-Type: application/json
+
+{ "equipmentId": 3, "date": "{{today}}", "condition": "NeedsRepair" }
+
+### 11. Возврат с описанием неисправности → 201
+POST {{host}}/api/operations/return
+Content-Type: application/json
+
+{ "equipmentId": 3, "date": "{{today}}", "condition": "NeedsRepair", "comment": "Не заряжается" }
+
+### 12. Возврат того, что на складе → 409
+POST {{host}}/api/operations/return
+Content-Type: application/json
+
+{ "equipmentId": 3, "date": "{{today}}", "condition": "Good" }
+
+### 13. Неверный формат даты → 400 { error } по-русски
+POST {{host}}/api/operations/issue
+Content-Type: application/json
+
+{ "equipmentId": 5, "employeeId": 1, "date": "вчера" }
