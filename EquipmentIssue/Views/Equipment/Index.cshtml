@@ -1,0 +1,32 @@
+@model List<Equipment>
+@{
+    ViewData["Title"] = "Оборудование";
+}
+<h1 class="h3 mb-3">Справочник оборудования</h1>
+<div class="card">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr><th>Инв. номер</th><th>Наименование</th><th>Категория</th><th>Серийный номер</th><th>Состояние</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var e in Model)
+        {
+            <tr class="@(e.IsWrittenOff ? "text-muted" : "")">
+                <td>@e.InventoryNumber</td>
+                <td>
+                    @e.Name
+                    @if (e.IsWrittenOff)
+                    {
+                        <span class="badge bg-secondary ms-1">Списано</span>
+                    }
+                </td>
+                <td>@e.Category</td>
+                <td>@e.SerialNumber</td>
+                <td>@e.Condition.DisplayName()</td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Карточка</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+<p class="text-muted small mt-2">Всего записей: @Model.Count</p>

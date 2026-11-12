@@ -1,0 +1,9 @@
+html { font-size: 15px; }
+body { min-height: 100vh; display: flex; flex-direction: column; background: #f6f7f9; }
+main { flex: 1; }
+.app-nav { background: #1f4e79; }
+.card { border: 1px solid #dde2e8; box-shadow: none; }
+.stat { font-size: 2rem; font-weight: 600; color: #1f4e79; line-height: 1.1; }
+.table th { white-space: nowrap; }
+.row-attention td { background: #fff4e5; }
+.text-small { font-size: .875rem; }

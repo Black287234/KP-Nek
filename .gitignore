@@ -1,0 +1,18 @@
+# Папки сборки .NET
+bin/
+obj/
+# Служебные папки IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+# Файлы базы данных SQLite (база создаётся заново)
+*.db
+*.db-shm
+*.db-wal
+# Результаты тестов
+TestResults/
+# Архивы для сдачи
+*.zip
+__pycache__/
