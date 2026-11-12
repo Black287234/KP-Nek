@@ -256,6 +256,18 @@ def before(page, r):
                              data='{"equipmentId": 1, "employeeId": 1, "date": "вчера"}',
                              headers={"Content-Type": "application/json"})
     r["api_bad_json"] = f"HTTP {resp.status}: {resp.text()[:300]}"
+    resp = page.request.post(BASE + "/api/operations/issue", data="", headers={"Content-Type": "application/json"})
+    r["api_empty_body"] = f"HTTP {resp.status}: {resp.text()[:300]}"
+
+    # 23. Подмена значения в форме: нечисловой Id оборудования
+    page.goto(BASE + "/Operations/Issue")
+    page.evaluate("""() => {
+        const s = document.querySelector('#EquipmentId');
+        const o = document.createElement('option'); o.value = 'abc'; o.text = 'abc'; s.appendChild(o); s.value = 'abc'; }""")
+    page.select_option("#EmployeeId", str(emp["T-1001"]))
+    page.click("button[type=submit]")
+    r["form_bad_value"] = alerts(page)
+    shot(page, "20_form_bad_value")
 
 
 def after(page, r):
