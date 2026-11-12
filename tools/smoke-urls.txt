@@ -1,6 +1,6 @@
 / 200
 /Equipment 200
-/Equipment?Search=ноутбук 200
+/Equipment?Search=%D0%BD%D0%BE%D1%83%D1%82%D0%B1%D1%83%D0%BA 200
 /Equipment?Condition=NeedsRepair&ShowWrittenOff=true 200
 /Equipment/Details/1 200
 /Equipment/Details/999 404
