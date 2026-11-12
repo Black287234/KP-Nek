@@ -3,8 +3,14 @@
 }
 <h1 class="h3 mb-2">Учёт выдачи оборудования сотрудникам</h1>
 <p class="text-muted">
-    Модуль для ответственного за оборудование: справочник оборудования и сотрудников,
-    выдача и возврат с датой операции и состоянием, список того, что находится у сотрудников, история операций.
+    Модуль для ответственного за оборудование: справочники оборудования и сотрудников,
+    выдача и возврат с датой операции и состоянием, список оборудования у сотрудников, история операций.
 </p>
-<p>Этап 1: справочник оборудования хранится в памяти.</p>
-<a class="btn btn-primary" asp-controller="Equipment" asp-action="Index">Открыть справочник оборудования</a>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card p-3"><div class="stat">@ViewData["EquipmentCount"]</div><div>единиц оборудования</div></div></div>
+    <div class="col-md-3"><div class="card p-3"><div class="stat">@ViewData["EmployeeCount"]</div><div>работающих сотрудников</div></div></div>
+</div>
+<div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" asp-controller="Equipment" asp-action="Index">Справочник оборудования</a>
+    <a class="btn btn-outline-secondary" asp-controller="Employees" asp-action="Index">Сотрудники</a>
+</div>

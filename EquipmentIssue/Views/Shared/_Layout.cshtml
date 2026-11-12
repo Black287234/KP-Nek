@@ -14,11 +14,19 @@
             <a class="navbar-brand fw-semibold" asp-controller="Home" asp-action="Index">Выдача оборудования</a>
             <ul class="navbar-nav flex-row flex-wrap gap-3">
                 <li class="nav-item"><a class="nav-link" asp-controller="Equipment" asp-action="Index">Оборудование</a></li>
-                <li class="nav-item"><a class="nav-link" href="/api/equipment" target="_blank">API</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Employees" asp-action="Index">Сотрудники</a></li>
             </ul>
         </div>
     </nav>
     <main class="container pb-5">
+        @if (TempData["Message"] is string message)
+        {
+            <div class="alert alert-success">@message</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger">@error</div>
+        }
         @RenderBody()
     </main>
     <footer class="border-top py-3 text-muted small">

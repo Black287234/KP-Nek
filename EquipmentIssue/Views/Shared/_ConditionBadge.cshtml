@@ -1,0 +1,10 @@
+@model EquipmentCondition
+@{
+    var css = Model switch
+    {
+        EquipmentCondition.Good => "bg-success",
+        EquipmentCondition.Worn => "bg-warning text-dark",
+        _ => "bg-danger"
+    };
+}
+<span class="badge @css">@Model.DisplayName()</span>

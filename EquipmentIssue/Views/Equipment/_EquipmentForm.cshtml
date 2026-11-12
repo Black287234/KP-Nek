@@ -1,0 +1,38 @@
+@model EquipmentIssue.ViewModels.EquipmentForm
+@{
+    bool isCreate = Model.Id == 0;
+}
+<partial name="_Errors" />
+<form method="post" class="card card-body" style="max-width: 640px">
+    <div class="mb-3">
+        <label asp-for="InventoryNumber" class="form-label"></label>
+        <input asp-for="InventoryNumber" class="form-control" placeholder="например, OB-0601" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Category" class="form-label"></label>
+        <input asp-for="Category" class="form-control" placeholder="Ноутбуки, Мониторы, Инструмент…" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="SerialNumber" class="form-label"></label>
+        <input asp-for="SerialNumber" class="form-control" />
+    </div>
+    @if (isCreate)
+    {
+        <div class="mb-3">
+            <label asp-for="Condition" class="form-label"></label>
+            <select asp-for="Condition" class="form-select" asp-items="Html.GetEnumSelectList<EquipmentCondition>()"></select>
+        </div>
+    }
+    else
+    {
+        <input type="hidden" asp-for="Condition" />
+    }
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Отмена</a>
+    </div>
+</form>

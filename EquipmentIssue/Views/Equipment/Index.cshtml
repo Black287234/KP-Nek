@@ -1,15 +1,57 @@
-@model List<Equipment>
+@model EquipmentIssue.ViewModels.EquipmentListViewModel
 @{
     ViewData["Title"] = "Оборудование";
+    var f = Model.Filter;
 }
-<h1 class="h3 mb-3">Справочник оборудования</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Справочник оборудования</h1>
+    <a class="btn btn-primary" asp-action="Create">+ Добавить оборудование</a>
+</div>
+
+<form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small mb-1" for="Search">Поиск</label>
+            <input class="form-control" id="Search" name="Search" value="@f.Search" placeholder="наименование, инв. или серийный номер" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="Category">Категория</label>
+            <select class="form-select" id="Category" name="Category">
+                <option value="">все</option>
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c" selected="@(c == f.Category)">@c</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="Condition">Состояние</label>
+            <select class="form-select" id="Condition" name="Condition">
+                <option value="">любое</option>
+                @foreach (var c in Enum.GetValues<EquipmentCondition>())
+                {
+                    <option value="@c" selected="@(c == f.Condition)">@c.DisplayName()</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2 align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="ShowWrittenOff" name="ShowWrittenOff" value="true" checked="@f.ShowWrittenOff" />
+                <label class="form-check-label small" for="ShowWrittenOff">списанные</label>
+            </div>
+            <button class="btn btn-outline-primary" type="submit">Найти</button>
+            <a class="btn btn-link" asp-action="Index">Сброс</a>
+        </div>
+    </div>
+</form>
+
 <div class="card">
     <table class="table mb-0 align-middle">
         <thead>
             <tr><th>Инв. номер</th><th>Наименование</th><th>Категория</th><th>Серийный номер</th><th>Состояние</th><th></th></tr>
         </thead>
         <tbody>
-        @foreach (var e in Model)
+        @foreach (var e in Model.Items)
         {
             <tr class="@(e.IsWrittenOff ? "text-muted" : "")">
                 <td>@e.InventoryNumber</td>
@@ -22,11 +64,15 @@
                 </td>
                 <td>@e.Category</td>
                 <td>@e.SerialNumber</td>
-                <td>@e.Condition.DisplayName()</td>
+                <td><partial name="_ConditionBadge" model="e.Condition" /></td>
                 <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Карточка</a></td>
             </tr>
+        }
+        @if (Model.Items.Count == 0)
+        {
+            <tr><td colspan="6" class="text-center text-muted py-4">Ничего не найдено</td></tr>
         }
         </tbody>
     </table>
 </div>
-<p class="text-muted small mt-2">Всего записей: @Model.Count</p>
+<p class="text-muted small mt-2">Найдено: @Model.Items.Count</p>

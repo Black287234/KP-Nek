@@ -1,0 +1,27 @@
+@model Employee
+@{
+    ViewData["Title"] = Model.FullName;
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <div class="text-muted small">@Model.PersonnelNumber · @Model.Department</div>
+        <h1 class="h3 mb-0">@Model.FullName @if (!Model.IsActive) { <span class="badge bg-secondary">Уволен</span> }</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Изменить</a>
+        <form method="post" asp-action="SetActive" asp-route-id="@Model.Id">
+            <input type="hidden" name="active" value="@(Model.IsActive ? "false" : "true")" />
+            <button type="submit" class="btn @(Model.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                @(Model.IsActive ? "Отметить увольнение" : "Восстановить")
+            </button>
+        </form>
+    </div>
+</div>
+<div class="card card-body mb-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Должность</dt><dd class="col-sm-9">@(Model.Position ?? "—")</dd>
+        <dt class="col-sm-3">Подразделение</dt><dd class="col-sm-9">@Model.Department</dd>
+        <dt class="col-sm-3">Статус</dt><dd class="col-sm-9">@(Model.IsActive ? "работает" : "уволен")</dd>
+    </dl>
+</div>
+<a class="btn btn-outline-secondary" asp-action="Index">К списку</a>

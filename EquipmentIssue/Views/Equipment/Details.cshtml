@@ -2,12 +2,25 @@
 @{
     ViewData["Title"] = Model.Name;
 }
-<h1 class="h3 mb-3">@Model.Name</h1>
-<dl class="row">
-    <dt class="col-sm-3">Инвентарный номер</dt><dd class="col-sm-9">@Model.InventoryNumber</dd>
-    <dt class="col-sm-3">Категория</dt><dd class="col-sm-9">@Model.Category</dd>
-    <dt class="col-sm-3">Серийный номер</dt><dd class="col-sm-9">@(Model.SerialNumber ?? "—")</dd>
-    <dt class="col-sm-3">Состояние</dt><dd class="col-sm-9">@Model.Condition.DisplayName()</dd>
-    <dt class="col-sm-3">Списано</dt><dd class="col-sm-9">@(Model.IsWrittenOff ? "да" : "нет")</dd>
-</dl>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <div class="text-muted small">@Model.InventoryNumber · @Model.Category</div>
+        <h1 class="h3 mb-0">@Model.Name</h1>
+    </div>
+    @if (!Model.IsWrittenOff)
+    {
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Изменить</a>
+    }
+</div>
+<div class="card card-body mb-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Инвентарный номер</dt><dd class="col-sm-9">@Model.InventoryNumber</dd>
+        <dt class="col-sm-3">Серийный номер</dt><dd class="col-sm-9">@(Model.SerialNumber ?? "—")</dd>
+        <dt class="col-sm-3">Состояние</dt><dd class="col-sm-9"><partial name="_ConditionBadge" model="Model.Condition" /></dd>
+        @if (Model.IsWrittenOff)
+        {
+            <dt class="col-sm-3">Списано</dt><dd class="col-sm-9">@Model.WriteOffReason</dd>
+        }
+    </dl>
+</div>
 <a class="btn btn-outline-secondary" asp-action="Index">К списку</a>

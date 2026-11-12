@@ -1,0 +1,39 @@
+@model List<Employee>
+@{
+    ViewData["Title"] = "Сотрудники";
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Сотрудники</h1>
+    <a class="btn btn-primary" asp-action="Create">+ Добавить сотрудника</a>
+</div>
+<form method="get" class="d-flex gap-2 mb-3" style="max-width: 520px">
+    <input class="form-control" name="search" value="@ViewData["Search"]" placeholder="ФИО, табельный номер или подразделение" />
+    <button class="btn btn-outline-primary" type="submit">Найти</button>
+</form>
+<div class="card">
+    <table class="table mb-0 align-middle">
+        <thead><tr><th>ФИО</th><th>Таб. номер</th><th>Подразделение</th><th>Должность</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var e in Model)
+        {
+            <tr class="@(e.IsActive ? "" : "text-muted")">
+                <td>
+                    @e.FullName
+                    @if (!e.IsActive)
+                    {
+                        <span class="badge bg-secondary ms-1">Уволен</span>
+                    }
+                </td>
+                <td>@e.PersonnelNumber</td>
+                <td>@e.Department</td>
+                <td>@e.Position</td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Карточка</a></td>
+            </tr>
+        }
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="5" class="text-center text-muted py-4">Ничего не найдено</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

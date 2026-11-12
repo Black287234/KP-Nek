@@ -1,0 +1,13 @@
+@* Ошибки проверки данных, которые вернул сервис *@
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var entry in ViewData.ModelState.Values)
+        {
+            foreach (var err in entry.Errors)
+            {
+                <div>@err.ErrorMessage</div>
+            }
+        }
+    </div>
+}

@@ -1,5 +1,5 @@
-using EquipmentIssue.Models;
 using EquipmentIssue.Services;
+using EquipmentIssue.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EquipmentIssue.Controllers.Api;
@@ -13,17 +13,26 @@ public class EquipmentApiController : ControllerBase
 
     public EquipmentApiController(EquipmentService equipment) => _equipment = equipment;
 
-    // GET /api/equipment
+    // GET /api/equipment?search=ноутбук
     [HttpGet]
-    public ActionResult<List<Equipment>> GetAll() => _equipment.GetAll();
+    public IActionResult GetAll([FromQuery] EquipmentFilter filter) =>
+        Ok(_equipment.Search(filter).Select(e => new
+        {
+            e.Id, e.InventoryNumber, e.Name, e.Category, e.SerialNumber,
+            Condition = e.Condition.ToString(), e.IsWrittenOff
+        }));
 
     // GET /api/equipment/5
     [HttpGet("{id:int}")]
     public IActionResult GetById(int id)
     {
-        var item = _equipment.GetById(id);
-        if (item == null)
+        var e = _equipment.GetById(id);
+        if (e == null)
             return NotFound(new { error = $"Оборудование с Id = {id} не найдено" });
-        return Ok(item);
+        return Ok(new
+        {
+            e.Id, e.InventoryNumber, e.Name, e.Category, e.SerialNumber,
+            Condition = e.Condition.ToString(), e.IsWrittenOff, e.WriteOffReason
+        });
     }
 }
