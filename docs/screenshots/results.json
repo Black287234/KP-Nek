@@ -39,5 +39,7 @@
   "not_found_api": "HTTP 404: Оборудование с Id = 999 не найдено",
   "api_onhand": "[{\"equipmentId\":10,\"inventoryNumber\":\"OB-0401\",\"equipment\":\"Шуруповёрт Makita DF333D\",\"employeeId\":5,\"employee\":\"Васильев Дмитрий Олегович\",\"department\":\"Хозяйственный отдел\",\"issueDate\":\"2026-11-05\",\"daysOnHand\":7},{\"eq",
   "api_bad_json": "HTTP 400: {\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"form\":[\"The form field is required.\"],\"$.date\":[\"The JSON value could not be converted to System.Nullable`1[System.DateTime]. Path: $.date | LineNumber: 0 | BytePosi",
+  "api_empty_body": "HTTP 400: {\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"One or more validation errors occurred.\",\"status\":400,\"errors\":{\"$\":[\"The JSON value could not be converted to EquipmentIssue.ViewModels.IssueForm. Path: $ | LineNumber: 0 | BytePositionInLine: 2.\"],\"form\":[\"The form field is requ",
+  "form_bad_value": "Выберите оборудование The value 'abc' is not valid for Оборудование.",
   "after_restart": "OB-0601 найден: да (Планшет Huawei MatePad 11); OB-0003 после перезапуска: у Попова Мария Викторовна выдано 12.11.2026, на руках 0 дн."
 }
