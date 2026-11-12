@@ -17,3 +17,18 @@ jobs:
         run: dotnet build -c Release
       - name: Smoke
         run: bash tools/smoke.sh
+      - name: Deploy from archive into another folder
+        run: |
+          # Как у преподавателя: архив проекта распаковывается в новую папку и запускается по инструкции
+          git archive -o /tmp/project.zip HEAD
+          mkdir -p /tmp/deploy && cd /tmp/deploy && unzip -q /tmp/project.zip
+          ls
+          dotnet build -c Release 2>&1 | tail -3
+          cd EquipmentIssue
+          nohup dotnet run --no-build -c Release --urls http://localhost:5071 > /tmp/deploy.log 2>&1 &
+          for i in $(seq 1 60); do curl -s http://localhost:5071 > /dev/null && break; sleep 1; done
+          echo "Главная: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:5071/)"
+          echo "Оборудование у сотрудников (API): $(curl -s http://localhost:5071/api/onhand | grep -o inventoryNumber | wc -l) записей"
+          ls -la equipment.db
+          cd .. && dotnet test -c Release 2>&1 | tail -4
+          pkill -f EquipmentIssue || true
