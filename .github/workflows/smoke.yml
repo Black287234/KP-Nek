@@ -32,5 +32,5 @@ jobs:
           nohup dotnet run --no-build -c Release --urls http://localhost:5098 > /tmp/d.log 2>&1 &
           for i in $(seq 1 60); do curl -s http://localhost:5098 > /dev/null && break; sleep 1; done
           echo "Код главной страницы: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:5098/)"
-          echo "Строк оборудования: $(curl -s http://localhost:5098/equipment | grep -o 'ИН-0' | wc -l)"
+          echo "Строк оборудования: $(curl -s http://localhost:5098/equipment | grep -o 'href="equipment/[0-9]' | wc -l)"
           ls -la issuedesk.db
