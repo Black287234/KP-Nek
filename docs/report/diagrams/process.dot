@@ -1,13 +1,15 @@
 digraph G {
-  graph [rankdir=TB, fontname="Liberation Serif", bgcolor=white, nodesep=0.35, ranksep=0.4, newrank=true];
-  node [fontname="Liberation Serif", fontsize=11, shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41"];
-  edge [fontname="Liberation Serif", fontsize=10, color="#1b2a41"];
-  subgraph cluster_emp { label="Сотрудник"; style="filled"; fillcolor="#f4f5f8"; color="#d9dde4"; fontname="Liberation Serif";
-    a1 [label="Обращается\nза оборудованием"]; a6 [label="Пользуется\nоборудованием"]; a7 [label="Возвращает\nоборудование"]; }
-  subgraph cluster_mol { label="Ответственный за оборудование"; style="filled"; fillcolor="#f6e9ec"; color="#d9dde4"; fontname="Liberation Serif";
-    a2 [label="Подбирает исправное\nоборудование на складе"]; a3 [label="Проверяет: сотрудник\nработает, оборудование\nне выдано", shape=diamond, style=filled, fillcolor=white];
-    a4 [label="Оформляет выдачу:\nдата, состояние,\nсрок возврата"]; a8 [label="Принимает, осматривает,\nфиксирует состояние"];
-    a9 [label="Неисправно?", shape=diamond, style=filled, fillcolor=white]; a10 [label="Описывает неисправность,\nнаправляет в ремонт"]; a11 [label="Возвращает на склад"]; }
-  a1 -> a2 -> a3; a3 -> a4 [label="да"]; a3 -> a2 [label="нет", style=dashed];
-  a4 -> a6 -> a7 -> a8 -> a9; a9 -> a10 [label="да"]; a9 -> a11 [label="нет"];
+  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.4, ranksep=0.45];
+  node [fontname="Liberation Serif", fontsize=13, shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41", penwidth=1.3];
+  edge [fontname="Liberation Serif", fontsize=12, color="#1b2a41", penwidth=1.2];
+  a [label="Сотрудник\nпросит\nоборудование", fillcolor="#eef1f6"];
+  b [label="Можно\nвыдать?", shape=diamond, fillcolor="#f6e9ec", color="#7b2335"];
+  c [label="Выдача:\nдата, срок,\nсостояние"];
+  d [label="Сотрудник\nпользуется", fillcolor="#eef1f6"];
+  e [label="Возврат:\nосмотр,\nсостояние"];
+  f [label="Исправно?", shape=diamond, fillcolor="#f6e9ec", color="#7b2335"];
+  g [label="На склад"];
+  h [label="Описать\nнеисправность,\nв ремонт"];
+  x [label="Отказ с причиной", fillcolor="#f6e9ec", color="#7b2335"];
+  a -> b; b -> c [label="да"]; b -> x [label="нет"]; c -> d -> e -> f; f -> g [label="да"]; f -> h [label="нет"];
 }

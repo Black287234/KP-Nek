@@ -1,19 +1,13 @@
 digraph G {
-  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.12, ranksep=0.35];
-  node [shape=box, fontname="Liberation Mono", fontsize=10, style="filled", fillcolor=white, color="#9aa3b1", height=0.3];
-  edge [arrowhead=none, color="#9aa3b1"];
-  root [label="IssueDesk/", fillcolor="#1b2a41", fontcolor=white];
-  F [label="Features/", fillcolor="#eef1f6"]; D [label="Domain/"]; Da [label="Data/"]; S [label="Shared/"]; C [label="Components/"];
-  root -> {D F Da S C};
-  FE [label="Equipment/", fillcolor="#f6e9ec"]; FP [label="Employees/", fillcolor="#f6e9ec"]; FI [label="Issuing/", fillcolor="#f6e9ec"]; FO [label="Overview/", fillcolor="#f6e9ec"];
-  F -> {FE FP FI FO};
-  e1 [label="EquipmentList.razor  EquipmentCard.razor  EquipmentEdit.razor"]; e2 [label="EquipmentRequests.cs (ListEquipment, SaveEquipment, WriteOffEquipment …)"]; e3 [label="EquipmentConfiguration.cs (таблица Equipment)"];
-  FE -> {e1 e2 e3};
-  i1 [label="IssuePage  ReturnPage  HoldingsPage  HistoryPage  HistoryTable"]; i2 [label="IssuingRequests.cs (IssueEquipment, ReturnEquipment, ListHoldings, ListHistory …)"]; i3 [label="AssignmentConfiguration.cs (таблица Assignments, индексы)"];
-  FI -> {i1 i2 i3};
-  p1 [label="EmployeeList / Card / Edit.razor, EmployeeRequests.cs, EmployeeConfiguration.cs"]; FP -> p1;
-  o1 [label="Home.razor (сводка)"]; FO -> o1;
-  d1 [label="Equipment.cs  Employee.cs  Assignment.cs  Names.cs"]; D -> d1;
-  da1 [label="DeskDb.cs  Seed.cs  Migrations/"]; Da -> da1;
-  s1 [label="Result.cs  Notice.cs  Text.cs  NoticeBar.razor  ConditionBadge.razor"]; S -> s1;
+  graph [rankdir=TB, fontname="Liberation Serif", bgcolor=white, nodesep=0.3, ranksep=0.5];
+  node [shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41", penwidth=1.3, fontname="Liberation Serif", fontsize=13];
+  edge [arrowhead=none, color="#9aa3b1", penwidth=1.3];
+  root [label="Features — функции модуля", fillcolor="#1b2a41", fontcolor=white, fontsize=14];
+  e [label="Equipment\nоборудование", fillcolor="#f6e9ec", color="#7b2335"];
+  p [label="Employees\nсотрудники", fillcolor="#f6e9ec", color="#7b2335"];
+  i [label="Issuing\nвыдача и возврат", fillcolor="#f6e9ec", color="#7b2335"];
+  o [label="Overview\nглавная", fillcolor="#f6e9ec", color="#7b2335"];
+  root -> {e p i o};
+  inside [label="В каждой папке:\n• страницы (.razor)\n• обработчики действий (выдать, вернуть, сохранить)\n• настройка таблицы базы данных", shape=note, fillcolor="#eef1f6", fontsize=12];
+  i -> inside [style=dashed];
 }

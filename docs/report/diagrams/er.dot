@@ -1,34 +1,16 @@
 digraph G {
-  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.7, ranksep=1.1];
-  node [shape=plain, fontname="Liberation Serif", fontsize=11];
-  edge [fontname="Liberation Serif", fontsize=10, dir=both, arrowtail=tee, arrowhead=crow, color="#1b2a41"];
-  Eq [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4">
-    <tr><td colspan="2" bgcolor="#1b2a41"><font color="white"><b>Equipment</b></font></td></tr>
-    <tr><td align="left">PK Id</td><td align="left">INTEGER</td></tr>
-    <tr><td align="left">InventoryNumber</td><td align="left">TEXT(9) UNIQUE</td></tr>
-    <tr><td align="left">Name</td><td align="left">TEXT(100)</td></tr>
-    <tr><td align="left">Kind</td><td align="left">TEXT(15)</td></tr>
-    <tr><td align="left">SerialNumber</td><td align="left">TEXT(40) NULL</td></tr>
-    <tr><td align="left">Condition</td><td align="left">TEXT(15)</td></tr>
-    <tr><td align="left">WrittenOffOn, WriteOffReason</td><td align="left">NULL</td></tr></table>>];
-  As [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4">
-    <tr><td colspan="2" bgcolor="#7b2335"><font color="white"><b>Assignments</b> (закрепление)</font></td></tr>
-    <tr><td align="left">PK Id</td><td align="left">INTEGER</td></tr>
-    <tr><td align="left">FK EquipmentId</td><td align="left">INTEGER</td></tr>
-    <tr><td align="left">FK EmployeeId</td><td align="left">INTEGER</td></tr>
-    <tr><td align="left">IssuedOn, IssuedCondition</td><td align="left">дата, TEXT</td></tr>
-    <tr><td align="left">DueOn, IssueNote</td><td align="left">NULL</td></tr>
-    <tr><td align="left">ReturnedOn, ReturnedCondition</td><td align="left">NULL — ещё у сотрудника</td></tr>
-    <tr><td align="left">ReturnNote, RecordedAt</td><td align="left"></td></tr>
-    <tr><td align="left" colspan="2"><i>UNIQUE (EquipmentId) WHERE ReturnedOn IS NULL</i></td></tr>
-    <tr><td align="left" colspan="2"><i>CHECK ReturnedOn IS NULL OR ReturnedOn &gt;= IssuedOn</i></td></tr></table>>];
-  Em [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4">
-    <tr><td colspan="2" bgcolor="#1b2a41"><font color="white"><b>Employees</b></font></td></tr>
-    <tr><td align="left">PK Id</td><td align="left">INTEGER</td></tr>
-    <tr><td align="left">PersonnelNumber</td><td align="left">CHAR(6) UNIQUE</td></tr>
-    <tr><td align="left">LastName, FirstName, MiddleName</td><td align="left">TEXT(40)</td></tr>
-    <tr><td align="left">Position, Department</td><td align="left">TEXT(80)</td></tr>
-    <tr><td align="left">Phone</td><td align="left">TEXT(20) NULL</td></tr>
-    <tr><td align="left">DismissedOn</td><td align="left">NULL</td></tr></table>>];
+  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.6, ranksep=1.2];
+  node [shape=plain, fontname="Liberation Serif", fontsize=14];
+  edge [fontname="Liberation Serif", fontsize=13, dir=both, arrowtail=tee, arrowhead=crow, color="#1b2a41", penwidth=1.3];
+  Eq [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="6" color="#1b2a41">
+    <tr><td bgcolor="#1b2a41"><font color="white"><b>Оборудование</b></font></td></tr>
+    <tr><td align="left" balign="left">Инвентарный номер<br/>Наименование, вид<br/>Серийный номер<br/>Состояние<br/>Дата списания</td></tr></table>>];
+  As [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="6" color="#7b2335">
+    <tr><td bgcolor="#7b2335"><font color="white"><b>Закрепление</b> (выдача — возврат)</font></td></tr>
+    <tr><td align="left" balign="left">Оборудование, сотрудник<br/>Дата выдачи, состояние при выдаче<br/>Вернуть до<br/>Дата возврата, состояние при возврате</td></tr>
+    <tr><td align="left" bgcolor="#f6e9ec">Нет даты возврата — оборудование у сотрудника</td></tr></table>>];
+  Em [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="6" color="#1b2a41">
+    <tr><td bgcolor="#1b2a41"><font color="white"><b>Сотрудник</b></font></td></tr>
+    <tr><td align="left" balign="left">Табельный номер<br/>Фамилия, имя, отчество<br/>Должность, подразделение<br/>Дата увольнения</td></tr></table>>];
   Eq -> As [label="1 : N"]; Em -> As [label="1 : N"];
 }
