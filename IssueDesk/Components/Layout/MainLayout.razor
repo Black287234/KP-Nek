@@ -18,6 +18,12 @@
 </main>
 <footer class="inner foot">ЧПОУ «Сургутский колледж предпринимательства», 2026</footer>
 
+@* Признак установленного интерактивного соединения (используется автоматическими сценариями проверки) *@
+@if (RendererInfo.IsInteractive)
+{
+    <span id="live" hidden></span>
+}
+
 <div id="blazor-error-ui">
     Произошла ошибка. Обновите страницу.
     <a href="" class="reload">Обновить</a>
