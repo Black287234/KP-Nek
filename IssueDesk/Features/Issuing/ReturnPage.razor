@@ -15,7 +15,7 @@
     <ValidationSummary class="notice bad" />
     <div class="cols2">
         <label class="full">Оборудование у сотрудника
-            <InputSelect @bind-Value="form.EquipmentId" id="equipment">
+            <InputSelect @bind-Value="form.EquipmentId" @bind-Value:after="SuggestCondition" id="equipment">
                 <option value="">выберите оборудование</option>
                 @foreach (var a in issued) { <option value="@a.EquipmentId">@a.Equipment!.InventoryNumber — @a.Equipment.Name (у @a.Employee!.ShortName с @a.IssuedOn.ToString("dd.MM.yyyy"))</option> }
             </InputSelect>
@@ -46,7 +46,13 @@
     {
         issued = Choices.Issued();
         form = new ReturnForm { ReturnedOn = Dates.Today(Clock), EquipmentId = Equipment };
-        if (selected is { } s) form.Condition = s.IssuedCondition;
+        SuggestCondition();
+    }
+
+    /// <summary>По умолчанию предлагается текущее состояние оборудования: без явного изменения оно сохраняется.</summary>
+    private void SuggestCondition()
+    {
+        if (selected is { } s) form.Condition = s.Equipment!.Condition;
     }
 
     private void Submit()

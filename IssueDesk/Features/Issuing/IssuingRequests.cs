@@ -62,6 +62,14 @@ public class IssueEquipment(IDbContextFactory<DeskDb> factory, TimeProvider cloc
 
         var issued = f.IssuedOn!.Value;
         if (Dates.Check(issued, today, "выдачи") is { } dateError) return Fail(Result.Invalid(dateError));
+        // Выдача задним числом не должна попадать в период, когда оборудование числилось за другим сотрудником
+        var last = db.Assignments.Include(a => a.Employee)
+                     .Where(a => a.EquipmentId == item.Id && a.ReturnedOn != null)
+                     .OrderByDescending(a => a.ReturnedOn).FirstOrDefault();
+        if (last != null && issued < last.ReturnedOn)
+            return Fail(Result.Conflict(
+                $"{item.InventoryNumber} в этот период числилось за сотрудником {last.Employee!.ShortName} " +
+                $"(с {last.IssuedOn:dd.MM.yyyy} по {last.ReturnedOn:dd.MM.yyyy}): дата выдачи — не ранее {last.ReturnedOn:dd.MM.yyyy}"));
         if (f.DueOn is { } due)
         {
             if (due < issued) return Fail(Result.Invalid("Плановая дата возврата не может быть раньше даты выдачи"));
