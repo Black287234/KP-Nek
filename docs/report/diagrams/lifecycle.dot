@@ -1,0 +1,16 @@
+digraph G {
+  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.6, ranksep=0.9];
+  node [shape=box, style="rounded,filled", fillcolor="#eef1f6", color="#1b2a41", fontname="Liberation Serif", fontsize=12];
+  edge [fontname="Liberation Serif", fontsize=10];
+  s [shape=circle, label="", width=0.2, style=filled, fillcolor=black];
+  f [shape=doublecircle, label="", width=0.15, style=filled, fillcolor=black];
+  stock [label="На складе\n(исправно / износ)"]; held [label="У сотрудника\n(открытое закрепление)", fillcolor="#f6e9ec", color="#7b2335"];
+  repair [label="На складе,\nтребует ремонта / неисправно", fillcolor="#fbf3e0"]; off [label="Списано", fillcolor="#e7e9ee"];
+  s -> stock [label=" добавление"];
+  stock -> held [label=" выдача"];
+  held -> stock [label=" возврат: исправно / износ"];
+  held -> repair [label=" возврат: неисправность\n(с описанием)"];
+  repair -> stock [label=" изменение состояния\nпосле ремонта"];
+  stock -> off [label=" списание с причиной"]; repair -> off [label=" списание"];
+  off -> f;
+}

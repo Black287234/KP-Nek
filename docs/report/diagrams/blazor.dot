@@ -1,0 +1,19 @@
+digraph G {
+  graph [rankdir=TB, fontname="Liberation Serif", bgcolor=white, nodesep=0.5, ranksep=0.5];
+  node [shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41", fontname="Liberation Serif", fontsize=11];
+  edge [fontname="Liberation Serif", fontsize=10, color="#1b2a41"];
+  dom [label="Браузер: HTML-страница\n(первая отрисовка на сервере)", fillcolor="#eef1f6"];
+  js [label="Браузер: blazor.web.js", fillcolor="#eef1f6"];
+  circ [label="Сервер: соединение пользователя (circuit)\nдерево компонентов, службы Scoped (Notice)"];
+  comp [label="Сервер: компоненты .razor\n(страницы папок Features)"];
+  hand [label="Сервер: обработчики\nIssueEquipment, ReturnEquipment …"];
+  ctx [label="IDbContextFactory<DeskDb>\nEF Core"];
+  db [label="SQLite\nissuedesk.db", shape=cylinder, fillcolor="#f6e9ec", color="#7b2335"];
+  {rank=same; dom; js}
+  {rank=same; comp; hand}
+  {rank=same; ctx; db}
+  dom -> js [style=dashed, arrowhead=none];
+  js -> circ [label=" SignalR: события\n (щелчок, ввод)", dir=both];
+  circ -> js [label=" изменения\n разметки", style=dashed, constraint=false];
+  circ -> comp [label=" отрисовка"]; comp -> hand [label=" вызов"]; hand -> ctx; ctx -> db;
+}
