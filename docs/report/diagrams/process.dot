@@ -1,7 +1,7 @@
 digraph G {
-  graph [rankdir=LR, fontname="Liberation Serif", bgcolor=white, nodesep=0.4, ranksep=0.45];
-  node [fontname="Liberation Serif", fontsize=13, shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41", penwidth=1.3];
-  edge [fontname="Liberation Serif", fontsize=12, color="#1b2a41", penwidth=1.2];
+  graph [rankdir=TB, fontname="Liberation Serif", bgcolor=white, nodesep=0.5, ranksep=0.6];
+  node [fontname="Liberation Serif", fontsize=14, shape=box, style="rounded,filled", fillcolor=white, color="#1b2a41", penwidth=1.3, width=2.0, height=0.9];
+  edge [fontname="Liberation Serif", fontsize=13, color="#1b2a41", penwidth=1.2];
   a [label="Сотрудник\nпросит\nоборудование", fillcolor="#eef1f6"];
   b [label="Можно\nвыдать?", shape=diamond, fillcolor="#f6e9ec", color="#7b2335"];
   c [label="Выдача:\nдата, срок,\nсостояние"];
@@ -10,6 +10,14 @@ digraph G {
   f [label="Исправно?", shape=diamond, fillcolor="#f6e9ec", color="#7b2335"];
   g [label="На склад"];
   h [label="Описать\nнеисправность,\nв ремонт"];
-  x [label="Отказ с причиной", fillcolor="#f6e9ec", color="#7b2335"];
-  a -> b; b -> c [label="да"]; b -> x [label="нет"]; c -> d -> e -> f; f -> g [label="да"]; f -> h [label="нет"];
+  x [label="Отказ\nс причиной", fillcolor="#f6e9ec", color="#7b2335"];
+  {rank=same; a; b; c; d}
+  {rank=same; x; h; f; e}
+  a -> b; b -> c [label="да"]; c -> d;
+  b -> x [label="нет"];
+  d -> e;
+  e -> f [dir=back, arrowtail=none, arrowhead=none, style=invis];
+  e -> f [constraint=false];
+  f -> h [label="нет", constraint=false];
+  f -> g [label="да"];
 }
