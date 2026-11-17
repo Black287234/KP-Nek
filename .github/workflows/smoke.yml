@@ -1,0 +1,36 @@
+# Запуск приложения, проверка страниц и развёртывание из архива в чистый каталог
+name: smoke
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build IssueDesk.sln -c Release
+      - name: Проверка страниц
+        run: |
+          cd IssueDesk && rm -f issuedesk.db
+          nohup dotnet run --no-build -c Release --urls http://localhost:5097 > /tmp/app.log 2>&1 &
+          for i in $(seq 1 60); do curl -s http://localhost:5097 > /dev/null && break; sleep 1; done
+          cd .. && python3 tools/smoke.py http://localhost:5097
+      - name: Журнал приложения
+        if: always()
+        run: grep -iE "fail|exception" /tmp/app.log | head -30 || true
+      - name: Развёртывание из архива
+        run: |
+          pkill -f IssueDesk || true
+          git archive -o /tmp/p.zip HEAD && mkdir /tmp/d && cd /tmp/d && unzip -q /tmp/p.zip
+          dotnet build IssueDesk.sln -c Release 2>&1 | tail -2
+          cd IssueDesk
+          nohup dotnet run --no-build -c Release --urls http://localhost:5098 > /tmp/d.log 2>&1 &
+          for i in $(seq 1 60); do curl -s http://localhost:5098 > /dev/null && break; sleep 1; done
+          echo "Код главной страницы: $(curl -s -o /dev/null -w '%{http_code}' http://localhost:5098/)"
+          echo "Строк оборудования: $(curl -s http://localhost:5098/equipment | grep -o 'ИН-0' | wc -l)"
+          ls -la issuedesk.db
