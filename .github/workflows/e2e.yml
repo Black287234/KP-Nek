@@ -32,7 +32,7 @@ jobs:
         run: dotnet test IssueDesk.sln --no-build -c Release --logger "console;verbosity=normal" 2>&1 | tee tests.txt
       - name: Сценарии
         run: |
-          rm -rf docs/evidence/screens docs/evidence/scenarios.json
+          rm -rf docs/evidence/screens docs/evidence/scenarios.json  # каталог before (снимки до исправлений) сохраняется
           cd IssueDesk && rm -f issuedesk.db
           nohup dotnet run --no-build -c Release --urls http://localhost:5097 > /tmp/a1.log 2>&1 &
           cd ..
