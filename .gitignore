@@ -1,0 +1,11 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+*.csproj.user
+IssueDesk/issuedesk.db
+IssueDesk/issuedesk.db-shm
+IssueDesk/issuedesk.db-wal
+IssueDesk.Tests/TestResults/
+tests/e2e/__pycache__/
+tests/e2e/.pytest_cache/
+node_modules/

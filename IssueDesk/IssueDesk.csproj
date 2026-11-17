@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Product>IssueDesk</Product>
+    <Description>IssueDesk: учёт выдачи оборудования сотрудникам (Blazor, интерактивный режим на сервере)</Description>
+    <NeutralLanguage>ru-RU</NeutralLanguage>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
