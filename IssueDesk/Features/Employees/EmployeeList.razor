@@ -1,0 +1,54 @@
+@page "/employees"
+@inject ListEmployees List
+
+<PageTitle>Сотрудники</PageTitle>
+<div class="title-row">
+    <div>
+        <h1>Справочник сотрудников</h1>
+        <p class="lead">Найдено сотрудников: @items.Count</p>
+    </div>
+    <a class="button" href="employees/new">Добавить сотрудника</a>
+</div>
+<NoticeBar />
+
+<section class="sheet filters">
+    <label>Поиск<input @bind="text" @bind:after="Load" placeholder="ФИО или табельный номер" /></label>
+    <label>Подразделение
+        <select @bind="department" @bind:after="Load">
+            <option value="">все</option>
+            @foreach (var d in departments) { <option value="@d">@d</option> }
+        </select>
+    </label>
+    <label class="tick"><input type="checkbox" @bind="dismissed" @bind:after="Load" /> включая уволенных</label>
+</section>
+
+<table class="register">
+    <thead><tr><th>Таб. №</th><th>ФИО</th><th>Должность</th><th>Подразделение</th></tr></thead>
+    <tbody>
+    @foreach (var e in items)
+    {
+        <tr class="@(e.IsDismissed ? "dim" : "")">
+            <td>@e.PersonnelNumber</td>
+            <td><a href="employees/@e.Id">@e.FullName</a> @if (e.IsDismissed) { <span class="chip">уволен</span> }</td>
+            <td>@e.Position</td>
+            <td>@e.Department</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    private string? text;
+    private string department = "";
+    private bool dismissed;
+    private List<Domain.Employee> items = [];
+    private List<string> departments = [];
+
+    protected override void OnInitialized()
+    {
+        departments = List.Departments();
+        Load();
+    }
+
+    private void Load() => items = List.Handle(new EmployeeFilter(text, department, dismissed));
+}

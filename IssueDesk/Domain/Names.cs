@@ -17,8 +17,11 @@ public static class Names
     public static string Of(Condition c) => c switch
     {
         Condition.Good => "исправно",
-        Condition.Worn => "исправно, есть следы износа",
+        Condition.Worn => "исправно, есть износ",
         Condition.NeedsRepair => "требует ремонта",
         _ => "неисправно"
     };
+
+    public static IEnumerable<EquipmentKind> Kinds => Enum.GetValues<EquipmentKind>();
+    public static IEnumerable<Condition> Conditions => Enum.GetValues<Condition>();
 }

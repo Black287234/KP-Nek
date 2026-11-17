@@ -1,0 +1,62 @@
+@page "/equipment/{Id:int}"
+@inject GetEquipment Get
+@inject WriteOffEquipment WriteOff
+@inject Notice Notice
+
+@if (item is null)
+{
+    <PageTitle>Запись не найдена</PageTitle>
+    <h1>Запись не найдена</h1>
+    <p class="notice bad">Оборудование с кодом @Id отсутствует в перечне.</p>
+    <a href="equipment">К перечню оборудования</a>
+}
+else
+{
+    <PageTitle>@item.InventoryNumber</PageTitle>
+    <div class="title-row">
+        <div>
+            <h1>@item.Name</h1>
+            <p class="lead">Инвентарный номер @item.InventoryNumber</p>
+        </div>
+        @if (!item.IsWrittenOff) { <a class="button ghost" href="equipment/@item.Id/edit">Изменить</a> }
+    </div>
+    <NoticeBar Error="@error" />
+    <section class="sheet">
+        <dl class="pairs">
+            <dt>Вид</dt><dd>@Names.Of(item.Kind)</dd>
+            <dt>Серийный номер</dt><dd>@(item.SerialNumber ?? "—")</dd>
+            <dt>Состояние</dt><dd><ConditionBadge Value="item.Condition" /></dd>
+            @if (item.IsWrittenOff)
+            {
+                <dt>Списано</dt><dd>@item.WrittenOffOn?.ToString("dd.MM.yyyy") — @item.WriteOffReason</dd>
+            }
+        </dl>
+    </section>
+    @if (!item.IsWrittenOff)
+    {
+        <h2>Списание</h2>
+        <section class="sheet inline">
+            <label class="grow">Причина списания<input @bind="reason" id="reason" maxlength="200" /></label>
+            <button class="button danger" @onclick="DoWriteOff">Списать</button>
+        </section>
+    }
+    <a href="equipment">К перечню оборудования</a>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Domain.Equipment? item;
+    private string? reason, error;
+
+    protected override void OnParametersSet() => item = Get.Handle(Id);
+
+    private void DoWriteOff()
+    {
+        var r = WriteOff.Handle(Id, reason);
+        if (!r.Ok) { error = r.Error; return; }
+        error = null;
+        Notice.Set("Оборудование списано");
+        item = Get.Handle(Id);
+        StateHasChanged();
+    }
+}

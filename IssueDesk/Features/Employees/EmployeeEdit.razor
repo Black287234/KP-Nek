@@ -1,0 +1,65 @@
+@page "/employees/new"
+@page "/employees/{Id:int}/edit"
+@inject GetEmployee Get
+@inject SaveEmployee Save
+@inject ListEmployees List
+@inject Notice Notice
+@inject NavigationManager Nav
+
+<PageTitle>@(Id is null ? "Новый сотрудник" : "Изменение сведений о сотруднике")</PageTitle>
+@if (missing)
+{
+    <h1>Запись не найдена</h1>
+    <p class="notice bad">Сотрудник с кодом @Id отсутствует в справочнике.</p>
+}
+else
+{
+    <h1>@(Id is null ? "Новый сотрудник" : "Изменение сведений о сотруднике")</h1>
+    <p class="lead">Табельный номер — шесть цифр; ФИО записываются русскими буквами.</p>
+    <EditForm Model="form" OnValidSubmit="Submit" FormName="employee" class="sheet form">
+        <DataAnnotationsValidator />
+        <NoticeBar Error="@error" />
+        <ValidationSummary class="notice bad" />
+        <div class="cols3">
+            <label>Табельный номер<InputText @bind-Value="form.PersonnelNumber" id="number" maxlength="6" /></label>
+            <label>Телефон<InputText @bind-Value="form.Phone" id="phone" maxlength="20" /></label>
+            <span></span>
+            <label>Фамилия<InputText @bind-Value="form.LastName" id="last" /></label>
+            <label>Имя<InputText @bind-Value="form.FirstName" id="first" /></label>
+            <label>Отчество<InputText @bind-Value="form.MiddleName" id="middle" /></label>
+            <label>Должность<InputText @bind-Value="form.Position" id="position" /></label>
+            <label class="span2">Подразделение<InputText @bind-Value="form.Department" id="department" list="departments" /></label>
+        </div>
+        <datalist id="departments">@foreach (var d in departments) { <option value="@d"></option> }</datalist>
+        <div class="actions">
+            <button class="button" type="submit">Сохранить</button>
+            <a class="button ghost" href="@(Id is null ? "employees" : $"employees/{Id}")">Отмена</a>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private EmployeeForm form = new();
+    private List<string> departments = [];
+    private string? error;
+    private bool missing;
+
+    protected override void OnParametersSet()
+    {
+        departments = List.Departments();
+        if (Id is null) return;
+        var e = Get.Handle(Id.Value);
+        if (e is null) { missing = true; return; }
+        form = new EmployeeForm { PersonnelNumber = e.PersonnelNumber, LastName = e.LastName, FirstName = e.FirstName, MiddleName = e.MiddleName,
+                                  Position = e.Position, Department = e.Department, Phone = e.Phone };
+    }
+
+    private void Submit()
+    {
+        var r = Save.Handle(Id, form);
+        if (!r.Ok) { error = r.Error; return; }
+        Notice.Set(Id is null ? "Сотрудник добавлен в справочник" : "Сведения о сотруднике сохранены");
+        Nav.NavigateTo($"employees/{r.Value}");
+    }
+}

@@ -1,0 +1,66 @@
+@page "/equipment/new"
+@page "/equipment/{Id:int}/edit"
+@inject GetEquipment Get
+@inject SaveEquipment Save
+@inject Notice Notice
+@inject NavigationManager Nav
+
+<PageTitle>@(Id is null ? "Новое оборудование" : "Изменение оборудования")</PageTitle>
+@if (missing)
+{
+    <h1>Запись не найдена</h1>
+    <p class="notice bad">Оборудование с кодом @Id отсутствует в перечне.</p>
+}
+else
+{
+    <h1>@(Id is null ? "Новое оборудование" : "Изменение оборудования")</h1>
+    <p class="lead">Инвентарный номер указывается в виде ИН-000123 и должен быть уникальным.</p>
+
+    <EditForm Model="form" OnValidSubmit="Submit" FormName="equipment" class="sheet form">
+        <DataAnnotationsValidator />
+        <NoticeBar Error="@error" />
+        <ValidationSummary class="notice bad" />
+        <div class="cols2">
+            <label>Инвентарный номер<InputText @bind-Value="form.InventoryNumber" id="inv" maxlength="9" /></label>
+            <label>Вид
+                <InputSelect @bind-Value="form.Kind" id="kind">
+                    @foreach (var k in Names.Kinds) { <option value="@k">@Names.Of(k)</option> }
+                </InputSelect>
+            </label>
+            <label class="full">Наименование<InputText @bind-Value="form.Name" id="name" maxlength="100" /></label>
+            <label>Серийный номер<InputText @bind-Value="form.SerialNumber" id="serial" maxlength="40" /></label>
+            <label>Состояние
+                <InputSelect @bind-Value="form.Condition" id="condition">
+                    @foreach (var c in Names.Conditions) { <option value="@c">@Names.Of(c)</option> }
+                </InputSelect>
+            </label>
+        </div>
+        <div class="actions">
+            <button class="button" type="submit">Сохранить</button>
+            <a class="button ghost" href="@(Id is null ? "equipment" : $"equipment/{Id}")">Отмена</a>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private EquipmentForm form = new();
+    private string? error;
+    private bool missing;
+
+    protected override void OnParametersSet()
+    {
+        if (Id is null) return;
+        var e = Get.Handle(Id.Value);
+        if (e is null) { missing = true; return; }
+        form = new EquipmentForm { InventoryNumber = e.InventoryNumber, Name = e.Name, Kind = e.Kind, SerialNumber = e.SerialNumber, Condition = e.Condition };
+    }
+
+    private void Submit()
+    {
+        var r = Save.Handle(Id, form);
+        if (!r.Ok) { error = r.Error; return; }
+        Notice.Set(Id is null ? "Оборудование добавлено в перечень" : "Сведения об оборудовании сохранены");
+        Nav.NavigateTo($"equipment/{r.Value}");
+    }
+}

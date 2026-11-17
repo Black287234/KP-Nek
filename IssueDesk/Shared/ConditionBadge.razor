@@ -1,0 +1,5 @@
+<span class="cond @Value.ToString().ToLowerInvariant()">@Names.Of(Value)</span>
+
+@code {
+    [Parameter] public Condition Value { get; set; }
+}

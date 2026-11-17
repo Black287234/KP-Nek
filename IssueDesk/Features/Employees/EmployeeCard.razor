@@ -1,0 +1,55 @@
+@page "/employees/{Id:int}"
+@inject GetEmployee Get
+@inject DismissEmployee Dismiss
+@inject Notice Notice
+
+@if (person is null)
+{
+    <PageTitle>Запись не найдена</PageTitle>
+    <h1>Запись не найдена</h1>
+    <p class="notice bad">Сотрудник с кодом @Id отсутствует в справочнике.</p>
+    <a href="employees">К справочнику сотрудников</a>
+}
+else
+{
+    <PageTitle>@person.ShortName</PageTitle>
+    <div class="title-row">
+        <div>
+            <h1>@person.FullName</h1>
+            <p class="lead">@person.Position, @person.Department</p>
+        </div>
+        @if (!person.IsDismissed) { <a class="button ghost" href="employees/@person.Id/edit">Изменить</a> }
+    </div>
+    <NoticeBar Error="@error" />
+    <section class="sheet">
+        <dl class="pairs">
+            <dt>Табельный номер</dt><dd>@person.PersonnelNumber</dd>
+            <dt>Телефон</dt><dd>@(person.Phone ?? "—")</dd>
+            <dt>Состояние</dt><dd>@(person.IsDismissed ? $"уволен {person.DismissedOn:dd.MM.yyyy}" : "работает")</dd>
+        </dl>
+    </section>
+    @if (!person.IsDismissed)
+    {
+        <section class="sheet inline">
+            <span class="grow muted">Уволенному сотруднику оборудование не выдаётся; запись сохраняется для истории.</span>
+            <button class="button danger" @onclick="DoDismiss">Отметить увольнение</button>
+        </section>
+    }
+    <a href="employees">К справочнику сотрудников</a>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Domain.Employee? person;
+    private string? error;
+
+    protected override void OnParametersSet() => person = Get.Handle(Id);
+
+    private void DoDismiss()
+    {
+        var r = Dismiss.Handle(Id);
+        if (!r.Ok) { error = r.Error; return; }
+        Notice.Set("Отмечено увольнение сотрудника");
+        person = Get.Handle(Id);
+    }
+}

@@ -1,0 +1,58 @@
+@page "/equipment"
+@inject ListEquipment List
+
+<PageTitle>Оборудование</PageTitle>
+<div class="title-row">
+    <div>
+        <h1>Перечень оборудования</h1>
+        <p class="lead">Найдено единиц: @items.Count</p>
+    </div>
+    <a class="button" href="equipment/new">Добавить оборудование</a>
+</div>
+<NoticeBar />
+
+<section class="sheet filters">
+    <label>Поиск<input @bind="text" @bind:after="Load" placeholder="наименование, инвентарный или серийный номер" /></label>
+    <label>Вид
+        <select @bind="kind" @bind:after="Load">
+            <option value="">все виды</option>
+            @foreach (var k in Names.Kinds) { <option value="@k">@Names.Of(k)</option> }
+        </select>
+    </label>
+    <label class="tick"><input type="checkbox" @bind="writtenOff" @bind:after="Load" /> включая списанное</label>
+</section>
+
+@if (items.Count == 0)
+{
+    <p class="notice info">Оборудование, удовлетворяющее условиям, не найдено.</p>
+}
+else
+{
+    <table class="register">
+        <thead><tr><th>Инв. номер</th><th>Наименование</th><th>Вид</th><th>Серийный номер</th><th>Состояние</th></tr></thead>
+        <tbody>
+        @foreach (var e in items)
+        {
+            <tr class="@(e.IsWrittenOff ? "dim" : "")">
+                <td><a href="equipment/@e.Id">@e.InventoryNumber</a></td>
+                <td>@e.Name @if (e.IsWrittenOff) { <span class="chip">списано</span> }</td>
+                <td>@Names.Of(e.Kind)</td>
+                <td>@(e.SerialNumber ?? "—")</td>
+                <td><ConditionBadge Value="e.Condition" /></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string? text;
+    private string kind = "";
+    private bool writtenOff;
+    private List<Domain.Equipment> items = [];
+
+    protected override void OnInitialized() => Load();
+
+    private void Load() =>
+        items = List.Handle(new EquipmentFilter(text, Enum.TryParse<EquipmentKind>(kind, out var k) ? k : null, writtenOff));
+}

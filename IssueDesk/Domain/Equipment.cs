@@ -12,10 +12,16 @@ public class Equipment
     public EquipmentKind Kind { get; set; }
     public string? SerialNumber { get; set; }
 
-    /// <summary>Техническое состояние, фиксируется при выдаче и возврате.</summary>
+    /// <summary>Текущее техническое состояние; обновляется при возврате.</summary>
     public Condition Condition { get; set; } = Condition.Good;
+
+    /// <summary>Списание вместо удаления: история выдач сохраняется.</summary>
+    public DateOnly? WrittenOffOn { get; set; }
+    public string? WriteOffReason { get; set; }
+    public bool IsWrittenOff => WrittenOffOn != null;
 }
 
 public enum EquipmentKind { Laptop, Projector, Camera, Tablet, Audio, Measuring, Other }
 
+/// <summary>Техническое состояние. Неисправное оборудование не выдаётся.</summary>
 public enum Condition { Good, Worn, NeedsRepair, Broken }

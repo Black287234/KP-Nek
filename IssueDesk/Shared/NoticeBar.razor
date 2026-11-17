@@ -1,0 +1,17 @@
+@inject Notice Notice
+@* Сообщение о результате предыдущего действия (например, после сохранения и перехода к карточке) *@
+@if (text != null)
+{
+    <p class="notice good" role="status">@text</p>
+}
+@if (Error != null)
+{
+    <p class="notice bad" role="alert">@Error</p>
+}
+
+@code {
+    [Parameter] public string? Error { get; set; }
+    private string? text;
+
+    protected override void OnInitialized() => text = Notice.Take();
+}
