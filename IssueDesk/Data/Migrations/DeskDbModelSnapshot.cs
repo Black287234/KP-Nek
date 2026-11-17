@@ -17,6 +17,62 @@ namespace IssueDesk.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.15");
 
+            modelBuilder.Entity("IssueDesk.Domain.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly?>("DueOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("IssueNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IssuedCondition")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("IssuedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReturnNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReturnedCondition")
+                        .HasMaxLength(15)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("ReturnedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EquipmentId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Assignments_OpenPerEquipment")
+                        .HasFilter("\"ReturnedOn\" IS NULL");
+
+                    b.HasIndex("EmployeeId", "ReturnedOn");
+
+                    b.ToTable("Assignments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Assignments_Dates", "\"ReturnedOn\" IS NULL OR \"ReturnedOn\" >= \"IssuedOn\"");
+                        });
+                });
+
             modelBuilder.Entity("IssueDesk.Domain.Employee", b =>
                 {
                     b.Property<int>("Id")
@@ -111,6 +167,25 @@ namespace IssueDesk.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Equipment", (string)null);
+                });
+
+            modelBuilder.Entity("IssueDesk.Domain.Assignment", b =>
+                {
+                    b.HasOne("IssueDesk.Domain.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IssueDesk.Domain.Equipment", "Equipment")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Equipment");
                 });
 #pragma warning restore 612, 618
         }
