@@ -1,0 +1,52 @@
+Тестовый запуск для /home/runner/work/KP-Nek/KP-Nek/IssueDesk.Tests/bin/Release/net10.0/IssueDesk.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.15)
+[xUnit.net 00:00:00.16]   Discovering: IssueDesk.Tests
+[xUnit.net 00:00:00.31]   Discovered:  IssueDesk.Tests
+[xUnit.net 00:00:00.33]   Starting:    IssueDesk.Tests
+  Passed IssueDesk.Tests.CatalogTests.equipment_search_covers_name_number_and_serial [1 s]
+  Passed IssueDesk.Tests.IssuingTests.due_date_is_checked(dueInDays: -1, message: "раньше даты выдачи") [1 s]
+  Passed IssueDesk.Tests.CatalogTests.employee_name_is_capitalized [55 ms]
+  Passed IssueDesk.Tests.IssuingTests.due_date_is_checked(dueInDays: 366, message: "не более 365 дней") [12 ms]
+  Passed IssueDesk.Tests.CatalogTests.dismissed_employees_are_hidden_by_default [19 ms]
+  Passed IssueDesk.Tests.IssuingTests.faulty_return_requires_description(condition: NeedsRepair, note: "сломан") [62 ms]
+  Passed IssueDesk.Tests.CatalogTests.employee_holding_equipment_cannot_be_dismissed [45 ms]
+  Passed IssueDesk.Tests.IssuingTests.faulty_return_requires_description(condition: Broken, note: null) [10 ms]
+  Passed IssueDesk.Tests.CatalogTests.write_off_requires_reason(reason: null) [25 ms]
+  Passed IssueDesk.Tests.IssuingTests.second_issue_of_same_equipment_is_rejected_with_current_holder [24 ms]
+  Passed IssueDesk.Tests.CatalogTests.write_off_requires_reason(reason: "сломан") [12 ms]
+  Passed IssueDesk.Tests.CatalogTests.issued_equipment_cannot_be_written_off [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.database_index_forbids_two_open_assignments_for_one_item [14 ms]
+  Passed IssueDesk.Tests.CatalogTests.capitalize_handles_case_hyphen_and_blank(input: "  иванов  ", expected: "Иванов") [8 ms]
+  Passed IssueDesk.Tests.IssuingTests.written_off_equipment_is_not_issued [9 ms]
+  Passed IssueDesk.Tests.CatalogTests.capitalize_handles_case_hyphen_and_blank(input: "ЛЕБЕДЕВ-кумач", expected: "Лебедев-Кумач") [8 ms]
+  Passed IssueDesk.Tests.IssuingTests.return_of_equipment_in_stock_is_rejected [8 ms]
+  Passed IssueDesk.Tests.CatalogTests.capitalize_handles_case_hyphen_and_blank(input: "   ", expected: null) [15 ms]
+  Passed IssueDesk.Tests.IssuingTests.issue_on_the_day_of_previous_return_is_allowed [23 ms]
+  Passed IssueDesk.Tests.CatalogTests.duplicate_personnel_number_is_rejected [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.faulty_equipment_is_not_issued(condition: Broken) [20 ms]
+  Passed IssueDesk.Tests.CatalogTests.equipment_number_and_text_are_normalized [19 ms]
+  Passed IssueDesk.Tests.CatalogTests.duplicate_inventory_number_is_rejected [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.faulty_equipment_is_not_issued(condition: NeedsRepair) [10 ms]
+  Passed IssueDesk.Tests.CatalogTests.dismissal_is_recorded_once [10 ms]
+  Passed IssueDesk.Tests.CatalogTests.write_off_stores_date_and_reason [11 ms]
+  Passed IssueDesk.Tests.CatalogTests.written_off_equipment_cannot_be_edited [24 ms]
+  Passed IssueDesk.Tests.IssuingTests.available_list_excludes_issued_faulty_and_written_off [54 ms]
+  Passed IssueDesk.Tests.IssuingTests.holdings_are_grouped_by_employee_and_flag_overdue [26 ms]
+  Passed IssueDesk.Tests.IssuingTests.history_with_reversed_period_is_rejected [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.history_lists_issue_and_return_newest_first [25 ms]
+  Passed IssueDesk.Tests.IssuingTests.backdated_issue_into_previous_holders_period_is_rejected [15 ms]
+  Passed IssueDesk.Tests.IssuingTests.dismissed_employee_gets_nothing [8 ms]
+[xUnit.net 00:00:02.15]   Finished:    IssueDesk.Tests
+  Passed IssueDesk.Tests.IssuingTests.return_in_future_is_rejected [11 ms]
+  Passed IssueDesk.Tests.IssuingTests.issue_date_must_be_within_last_30_days(daysAgo: -1, message: "позже сегодняшней") [8 ms]
+  Passed IssueDesk.Tests.IssuingTests.issue_date_must_be_within_last_30_days(daysAgo: 31, message: "не ранее чем за 30 дней") [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.issue_records_assignment_with_condition_at_issue [18 ms]
+  Passed IssueDesk.Tests.IssuingTests.issue_30_days_ago_is_allowed [9 ms]
+  Passed IssueDesk.Tests.IssuingTests.return_closes_assignment_and_updates_equipment_condition [11 ms]
+  Passed IssueDesk.Tests.IssuingTests.return_before_issue_date_is_rejected [10 ms]
+
+Test Run Successful.
+Total tests: 40
+     Passed: 40
+ Total time: 4,8554 Seconds
