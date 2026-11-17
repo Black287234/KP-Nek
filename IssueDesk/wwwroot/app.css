@@ -75,3 +75,5 @@ tr.dim td { color: #8d94a0; }
 .holder h2 { font-size: 18px; margin-top: 22px; }
 .small { font-size: 13px; }
 @media (max-width: 800px) { .figures { grid-template-columns: 1fr 1fr; } }
+/* Заголовок получает фокус при переходе между страницами (для экранного диктора); рамка фокуса не нужна */
+h1:focus, h1:focus-visible { outline: none; }
