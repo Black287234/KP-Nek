@@ -108,6 +108,8 @@ public class DismissEmployee(IDbContextFactory<DeskDb> factory, TimeProvider clo
         var e = db.Employees.FirstOrDefault(x => x.Id == id);
         if (e is null) return Result.NotFound("Сотрудник не найден");
         if (e.IsDismissed) return Result.Conflict("Сотрудник уже уволен");
+        var held = db.Assignments.Count(a => a.EmployeeId == id && a.ReturnedOn == null);
+        if (held > 0) return Result.Conflict($"За сотрудником числится оборудование ({held} ед.): сначала оформите возврат");
         e.DismissedOn = DateOnly.FromDateTime(clock.GetLocalNow().DateTime);
         db.SaveChanges();
         return Result.Success();

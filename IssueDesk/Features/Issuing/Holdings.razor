@@ -1,0 +1,48 @@
+@page "/holdings"
+@inject ListHoldings Holdings
+
+<PageTitle>Оборудование у сотрудников</PageTitle>
+<h1>Оборудование у сотрудников</h1>
+<p class="lead">Сотрудников: @groups.Count, единиц оборудования: @groups.Sum(g => g.Count())</p>
+
+<section class="sheet filters">
+    <label>Поиск<input @bind="text" @bind:after="Load" placeholder="ФИО, инвентарный номер, наименование" /></label>
+    <label class="tick"><input type="checkbox" @bind="overdueOnly" @bind:after="Load" /> только с истёкшим сроком возврата</label>
+</section>
+
+@if (groups.Count == 0)
+{
+    <p class="notice info">Оборудование у сотрудников не числится.</p>
+}
+@foreach (var g in groups)
+{
+    <section class="holder">
+        <h2><a href="employees/@g.Key.Id">@g.Key.FullName</a> <span class="muted small">@g.Key.Position, @g.Key.Department</span></h2>
+        <table class="register">
+            <thead><tr><th>Инв. номер</th><th>Наименование</th><th>Выдано</th><th>Вернуть до</th><th>Состояние при выдаче</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var h in g)
+            {
+                var a = h.Assignment;
+                <tr>
+                    <td><a href="equipment/@a.EquipmentId">@a.Equipment!.InventoryNumber</a></td>
+                    <td>@a.Equipment.Name</td>
+                    <td>@a.IssuedOn.ToString("dd.MM.yyyy")</td>
+                    <td>@if (a.DueOn is { } d) { <span class="@(h.Overdue ? "late" : "")">@d.ToString("dd.MM.yyyy")@(h.Overdue ? " — срок истёк" : "")</span> } else { <span>—</span> }</td>
+                    <td><ConditionBadge Value="a.IssuedCondition" /></td>
+                    <td class="right"><a class="button small" href="return?equipment=@a.EquipmentId">Принять возврат</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}
+
+@code {
+    private string? text;
+    private bool overdueOnly;
+    private List<IGrouping<Domain.Employee, Holding>> groups = [];
+
+    protected override void OnInitialized() => Load();
+    private void Load() => groups = Holdings.Handle(text, overdueOnly);
+}

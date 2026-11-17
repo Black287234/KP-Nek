@@ -2,6 +2,9 @@
 @inject GetEmployee Get
 @inject DismissEmployee Dismiss
 @inject Notice Notice
+@inject ListHoldings Holdings
+@inject ListHistory History
+@inject TimeProvider Clock
 
 @if (person is null)
 {
@@ -28,6 +31,32 @@ else
             <dt>Состояние</dt><dd>@(person.IsDismissed ? $"уволен {person.DismissedOn:dd.MM.yyyy}" : "работает")</dd>
         </dl>
     </section>
+    <h2>Оборудование у сотрудника</h2>
+    @if (held.Count == 0)
+    {
+        <p class="notice info">За сотрудником оборудование не числится.</p>
+    }
+    else
+    {
+        <table class="register">
+            <thead><tr><th>Инв. номер</th><th>Наименование</th><th>Выдано</th><th>Вернуть до</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var h in held)
+            {
+                <tr>
+                    <td><a href="equipment/@h.Assignment.EquipmentId">@h.Assignment.Equipment!.InventoryNumber</a></td>
+                    <td>@h.Assignment.Equipment.Name</td>
+                    <td>@h.Assignment.IssuedOn.ToString("dd.MM.yyyy")</td>
+                    <td class="@(h.Overdue ? "late" : "")">@(h.Assignment.DueOn?.ToString("dd.MM.yyyy") ?? "—")@(h.Overdue ? " — срок истёк" : "")</td>
+                    <td class="right"><a class="button small" href="return?equipment=@h.Assignment.EquipmentId">Принять возврат</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    @if (!person.IsDismissed) { <p class="actions"><a class="button" href="issue?employee=@person.Id">Выдать оборудование</a></p> }
+    <h2>История операций</h2>
+    <HistoryTable Events="events" ShowEmployee="false" />
     @if (!person.IsDismissed)
     {
         <section class="sheet inline">
@@ -41,15 +70,24 @@ else
 @code {
     [Parameter] public int Id { get; set; }
     private Domain.Employee? person;
+    private List<Holding> held = [];
+    private List<HistoryEvent> events = [];
     private string? error;
 
-    protected override void OnParametersSet() => person = Get.Handle(Id);
+    protected override void OnParametersSet() => Load();
+
+    private void Load()
+    {
+        person = Get.Handle(Id);
+        held = Holdings.Handle().FirstOrDefault(g => g.Key.Id == Id)?.ToList() ?? [];
+        events = History.Handle(new HistoryFilter(EmployeeId: Id)).Value!;
+    }
 
     private void DoDismiss()
     {
         var r = Dismiss.Handle(Id);
         if (!r.Ok) { error = r.Error; return; }
         Notice.Set("Отмечено увольнение сотрудника");
-        person = Get.Handle(Id);
+        Load();
     }
 }

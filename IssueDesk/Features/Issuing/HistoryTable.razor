@@ -1,0 +1,30 @@
+@* Таблица событий истории: выдача и возврат *@
+@if (Events.Count == 0)
+{
+    <p class="notice info">Операций нет.</p>
+}
+else
+{
+    <table class="register">
+        <thead><tr><th>Дата</th><th>Операция</th>@if (ShowEquipment) { <th>Оборудование</th> }@if (ShowEmployee) { <th>Сотрудник</th> }<th>Состояние</th><th>Примечание</th></tr></thead>
+        <tbody>
+        @foreach (var e in Events)
+        {
+            <tr>
+                <td>@e.Date.ToString("dd.MM.yyyy")</td>
+                <td><span class="op @(e.IsIssue ? "out" : "in")">@(e.IsIssue ? "Выдача" : "Возврат")</span></td>
+                @if (ShowEquipment) { <td><a href="equipment/@e.Assignment.EquipmentId">@e.Assignment.Equipment!.InventoryNumber</a> @e.Assignment.Equipment.Name</td> }
+                @if (ShowEmployee) { <td><a href="employees/@e.Assignment.EmployeeId">@e.Assignment.Employee!.ShortName</a></td> }
+                <td><ConditionBadge Value="e.Condition" /></td>
+                <td>@(e.Note ?? (e.IsIssue && e.Assignment.DueOn is { } d ? $"вернуть до {d:dd.MM.yyyy}" : ""))</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter, EditorRequired] public List<HistoryEvent> Events { get; set; } = [];
+    [Parameter] public bool ShowEquipment { get; set; } = true;
+    [Parameter] public bool ShowEmployee { get; set; } = true;
+}

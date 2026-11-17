@@ -7,8 +7,12 @@ public static class Seed
 {
     public static void Run(DeskDb db, DateOnly today)
     {
-        if (db.Equipment.Any()) return;
+        if (!db.Equipment.Any()) Catalogs(db, today);
+        if (!db.Assignments.Any()) Assignments(db, today);
+    }
 
+    private static void Catalogs(DeskDb db, DateOnly today)
+    {
         db.Employees.AddRange(
             new Employee { PersonnelNumber = "000112", LastName = "Крючков", FirstName = "Виталий", MiddleName = "Владимирович", Position = "Преподаватель", Department = "Отделение информационных технологий", Phone = "+7 (3462) 55-01-12" },
             new Employee { PersonnelNumber = "000127", LastName = "Лаптева", FirstName = "Ольга", MiddleName = "Николаевна", Position = "Преподаватель", Department = "Отделение информационных технологий" },
@@ -34,6 +38,33 @@ public static class Seed
             new Equipment { InventoryNumber = "ИН-000502", Name = "Колонка портативная JBL Eon One", Kind = EquipmentKind.Audio, Condition = Condition.Broken },
             new Equipment { InventoryNumber = "ИН-000601", Name = "Мультиметр цифровой UNI-T UT33D", Kind = EquipmentKind.Measuring },
             new Equipment { InventoryNumber = "ИН-000090", Name = "Проектор NEC V260", Kind = EquipmentKind.Projector, WrittenOffOn = today.AddDays(-90), WriteOffReason = "Выработан ресурс лампы, ремонт нецелесообразен" });
+        db.SaveChanges();
+    }
+
+    /// <summary>Выдачи за последние недели: часть возвращена, часть у сотрудников, одна просрочена.</summary>
+    private static void Assignments(DeskDb db, DateOnly today)
+    {
+        var eq = db.Equipment.ToDictionary(e => e.InventoryNumber);
+        var emp = db.Employees.ToDictionary(e => e.PersonnelNumber);
+        var at = today.ToDateTime(new TimeOnly(9, 0));
+        Assignment Give(string inv, string person, int daysAgo, int? dueIn = null, int? returnedAgo = null, Condition? back = null, string? note = null, Condition? was = null) => new()
+        {
+            Equipment = eq[inv], Employee = emp[person], IssuedOn = today.AddDays(-daysAgo), IssuedCondition = was ?? eq[inv].Condition,
+            DueOn = dueIn is { } d ? today.AddDays(-daysAgo + d) : null,
+            ReturnedOn = returnedAgo is { } r ? today.AddDays(-r) : null, ReturnedCondition = returnedAgo is null ? null : back ?? eq[inv].Condition,
+            ReturnNote = note, RecordedAt = at.AddDays(-daysAgo)
+        };
+        db.Assignments.AddRange(
+            Give("ИН-000101", "000112", 25),
+            Give("ИН-000201", "000112", 12, dueIn: 30),
+            Give("ИН-000102", "000203", 20, dueIn: 14),                       // срок возврата прошёл
+            Give("ИН-000401", "000231", 9, dueIn: 21),
+            Give("ИН-000301", "000244", 28, dueIn: 7, returnedAgo: 21),
+            Give("ИН-000301", "000250", 15, dueIn: 3, returnedAgo: 12),
+            Give("ИН-000302", "000244", 6),
+            Give("ИН-000104", "000127", 27, returnedAgo: 18, back: Condition.NeedsRepair, note: "Не включается после падения, повреждён разъём питания", was: Condition.Good),
+            Give("ИН-000501", "000244", 14, dueIn: 2, returnedAgo: 11),
+            Give("ИН-000601", "000215", 4));
         db.SaveChanges();
     }
 }

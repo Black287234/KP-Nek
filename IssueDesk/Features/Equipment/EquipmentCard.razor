@@ -2,6 +2,8 @@
 @inject GetEquipment Get
 @inject WriteOffEquipment WriteOff
 @inject Notice Notice
+@inject CurrentHolder Holder
+@inject ListHistory History
 
 @if (item is null)
 {
@@ -26,12 +28,24 @@ else
             <dt>Вид</dt><dd>@Names.Of(item.Kind)</dd>
             <dt>Серийный номер</dt><dd>@(item.SerialNumber ?? "—")</dd>
             <dt>Состояние</dt><dd><ConditionBadge Value="item.Condition" /></dd>
+            <dt>Местонахождение</dt>
+            <dd>@if (holder is { } h) { <span>у сотрудника <a href="employees/@h.EmployeeId">@h.Employee!.FullName</a> с @h.IssuedOn.ToString("dd.MM.yyyy")@(h.DueOn is { } d ? $", вернуть до {d:dd.MM.yyyy}" : "")</span> }
+                else if (item.IsWrittenOff) { <span>списано</span> } else { <span>на складе</span> }</dd>
             @if (item.IsWrittenOff)
             {
                 <dt>Списано</dt><dd>@item.WrittenOffOn?.ToString("dd.MM.yyyy") — @item.WriteOffReason</dd>
             }
         </dl>
     </section>
+    @if (!item.IsWrittenOff)
+    {
+        <p class="actions">
+            @if (holder is null) { <a class="button" href="issue?equipment=@item.Id">Выдать</a> }
+            else { <a class="button" href="return?equipment=@item.Id">Принять возврат</a> }
+        </p>
+    }
+    <h2>История выдачи</h2>
+    <HistoryTable Events="events" ShowEquipment="false" />
     @if (!item.IsWrittenOff)
     {
         <h2>Списание</h2>
@@ -46,9 +60,18 @@ else
 @code {
     [Parameter] public int Id { get; set; }
     private Domain.Equipment? item;
+    private Domain.Assignment? holder;
+    private List<HistoryEvent> events = [];
     private string? reason, error;
 
-    protected override void OnParametersSet() => item = Get.Handle(Id);
+    protected override void OnParametersSet() => Load();
+
+    private void Load()
+    {
+        item = Get.Handle(Id);
+        holder = Holder.Handle(Id);
+        events = History.Handle(new HistoryFilter(EquipmentId: Id)).Value!;
+    }
 
     private void DoWriteOff()
     {
@@ -56,7 +79,6 @@ else
         if (!r.Ok) { error = r.Error; return; }
         error = null;
         Notice.Set("Оборудование списано");
-        item = Get.Handle(Id);
-        StateHasChanged();
+        Load();
     }
 }

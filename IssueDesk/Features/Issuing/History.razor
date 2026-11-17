@@ -1,0 +1,56 @@
+@page "/history"
+@inject ListHistory History
+@inject IssuingChoices Choices
+@inject ListEmployees Employees
+@inject ListEquipment Equipment
+
+<PageTitle>История операций</PageTitle>
+<h1>История операций</h1>
+<p class="lead">Найдено операций: @events.Count</p>
+
+<section class="sheet filters">
+    <label>С<input type="date" @bind="from" @bind:after="Load" id="from" /></label>
+    <label>По<input type="date" @bind="to" @bind:after="Load" id="to" /></label>
+    <label>Операция
+        <select @bind="kind" @bind:after="Load" id="kind"><option value="">все</option><option value="issue">выдача</option><option value="return">возврат</option></select>
+    </label>
+    <label>Сотрудник
+        <select @bind="employee" @bind:after="Load" id="employee">
+            <option value="0">все</option>
+            @foreach (var p in people) { <option value="@p.Id">@p.ShortName</option> }
+        </select>
+    </label>
+    <label>Оборудование
+        <select @bind="item" @bind:after="Load" id="item">
+            <option value="0">всё</option>
+            @foreach (var e in items) { <option value="@e.Id">@e.InventoryNumber @e.Name</option> }
+        </select>
+    </label>
+</section>
+<NoticeBar Error="@error" />
+<HistoryTable Events="events" />
+
+@code {
+    private DateOnly? from, to;
+    private string kind = "";
+    private int employee, item;
+    private List<Domain.Employee> people = [];
+    private List<Domain.Equipment> items = [];
+    private List<HistoryEvent> events = [];
+    private string? error;
+
+    protected override void OnInitialized()
+    {
+        people = Employees.Handle(new EmployeeFilter(WithDismissed: true));
+        items = Equipment.Handle(new EquipmentFilter(WithWrittenOff: true));
+        Load();
+    }
+
+    private void Load()
+    {
+        var r = History.Handle(new HistoryFilter(from, to, employee == 0 ? null : employee, item == 0 ? null : item,
+            kind == "" ? null : kind == "issue"));
+        error = r.Error;
+        events = r.Value ?? [];
+    }
+}

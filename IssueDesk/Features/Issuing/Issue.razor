@@ -1,0 +1,60 @@
+@page "/issue"
+@inject IssueEquipment Issue
+@inject IssuingChoices Choices
+@inject TimeProvider Clock
+@inject Notice Notice
+@inject NavigationManager Nav
+
+<PageTitle>Выдача оборудования</PageTitle>
+<h1>Выдача оборудования</h1>
+<p class="lead">В списке — только исправное оборудование, которое не находится у сотрудников. Дата выдачи — не позже сегодняшней и не ранее чем за 30 дней.</p>
+
+<EditForm Model="form" OnValidSubmit="Submit" FormName="issue" class="sheet form">
+    <DataAnnotationsValidator />
+    <NoticeBar Error="@error" />
+    <ValidationSummary class="notice bad" />
+    <div class="cols2">
+        <label class="full">Оборудование
+            <InputSelect @bind-Value="form.EquipmentId" id="equipment">
+                <option value="">выберите оборудование</option>
+                @foreach (var e in equipment) { <option value="@e.Id">@e.InventoryNumber — @e.Name (@Names.Of(e.Condition))</option> }
+            </InputSelect>
+        </label>
+        <label class="full">Сотрудник
+            <InputSelect @bind-Value="form.EmployeeId" id="employee">
+                <option value="">выберите сотрудника</option>
+                @foreach (var p in people) { <option value="@p.Id">@p.FullName — @p.Position, @p.Department</option> }
+            </InputSelect>
+        </label>
+        <label>Дата выдачи<InputDate @bind-Value="form.IssuedOn" id="issued" /></label>
+        <label>Вернуть до (необязательно)<InputDate @bind-Value="form.DueOn" id="due" /></label>
+        <label class="full">Примечание<InputText @bind-Value="form.Note" id="note" maxlength="200" /></label>
+    </div>
+    <div class="actions"><button class="button" type="submit">Оформить выдачу</button></div>
+</EditForm>
+
+@code {
+    [SupplyParameterFromQuery] public int? Equipment { get; set; }
+    [SupplyParameterFromQuery] public int? Employee { get; set; }
+    private IssueForm form = new();
+    private List<Domain.Equipment> equipment = [];
+    private List<Domain.Employee> people = [];
+    private string? error;
+
+    protected override void OnInitialized()
+    {
+        equipment = Choices.Available();
+        people = Choices.ActiveEmployees();
+        form = new IssueForm { IssuedOn = Dates.Today(Clock), EquipmentId = Equipment, EmployeeId = Employee };
+    }
+
+    private void Submit()
+    {
+        var r = Issue.Handle(form);
+        if (!r.Ok) { error = r.Error; return; }
+        var e = equipment.First(x => x.Id == form.EquipmentId);
+        var p = people.First(x => x.Id == form.EmployeeId);
+        Notice.Set($"Выдача оформлена: {e.InventoryNumber} {e.Name} — {p.ShortName}");
+        Nav.NavigateTo($"employees/{p.Id}");
+    }
+}

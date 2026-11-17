@@ -10,6 +10,7 @@ public class DeskDb(DbContextOptions<DeskDb> options) : DbContext(options)
 {
     public DbSet<Domain.Equipment> Equipment => Set<Domain.Equipment>();
     public DbSet<Domain.Employee> Employees => Set<Domain.Employee>();
+    public DbSet<Domain.Assignment> Assignments => Set<Domain.Assignment>();
 
     protected override void OnModelCreating(ModelBuilder model) =>
         model.ApplyConfigurationsFromAssembly(typeof(DeskDb).Assembly);

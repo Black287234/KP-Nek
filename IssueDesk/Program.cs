@@ -2,6 +2,7 @@ using IssueDesk.Components;
 using IssueDesk.Data;
 using IssueDesk.Features.Employees;
 using IssueDesk.Features.Equipment;
+using IssueDesk.Features.Issuing;
 using IssueDesk.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,12 @@ builder.Services.AddScoped<ListEmployees>();
 builder.Services.AddScoped<GetEmployee>();
 builder.Services.AddScoped<SaveEmployee>();
 builder.Services.AddScoped<DismissEmployee>();
+builder.Services.AddScoped<IssueEquipment>();
+builder.Services.AddScoped<ReturnEquipment>();
+builder.Services.AddScoped<ListHoldings>();
+builder.Services.AddScoped<ListHistory>();
+builder.Services.AddScoped<CurrentHolder>();
+builder.Services.AddScoped<IssuingChoices>();
 
 var app = builder.Build();
 

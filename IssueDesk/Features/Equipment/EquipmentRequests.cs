@@ -96,6 +96,8 @@ public class WriteOffEquipment(IDbContextFactory<DeskDb> factory, TimeProvider c
         var item = db.Equipment.FirstOrDefault(e => e.Id == id);
         if (item is null) return Result.NotFound("Оборудование не найдено");
         if (item.IsWrittenOff) return Result.Conflict("Оборудование уже списано");
+        if (db.Assignments.Any(a => a.EquipmentId == id && a.ReturnedOn == null))
+            return Result.Conflict("Оборудование находится у сотрудника: сначала оформите возврат");
         reason = Text.Clean(reason);
         if (reason is null || reason.Length < 10) return Result.Invalid("Укажите причину списания (не менее 10 символов)");
         item.WrittenOffOn = DateOnly.FromDateTime(clock.GetLocalNow().DateTime);

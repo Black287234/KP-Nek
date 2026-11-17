@@ -1,0 +1,43 @@
+@page "/"
+@inject ListHoldings Holdings
+@inject ListHistory History
+@inject IssuingChoices Choices
+@inject TimeProvider Clock
+
+<PageTitle>Учёт выдачи оборудования</PageTitle>
+<h1>Учёт выдачи оборудования сотрудникам</h1>
+<p class="lead">Сведения на @today.ToString("dd.MM.yyyy")</p>
+
+<div class="figures">
+    <div><b>@available</b><span>единиц можно выдать</span></div>
+    <div><b>@issued</b><span>единиц у сотрудников</span></div>
+    <div><b>@holders</b><span>сотрудников с оборудованием</span></div>
+    <div class="@(overdue > 0 ? "alarm" : "")"><b>@overdue</b><span>с истёкшим сроком возврата</span></div>
+</div>
+
+<div class="actions">
+    <a class="button" href="issue">Выдать оборудование</a>
+    <a class="button" href="return">Принять возврат</a>
+    <a class="button ghost" href="holdings">Оборудование у сотрудников</a>
+</div>
+
+<h2>Последние операции</h2>
+<HistoryTable Events="recent" />
+<p><a href="history">Вся история операций</a></p>
+
+@code {
+    private DateOnly today;
+    private int available, issued, holders, overdue;
+    private List<HistoryEvent> recent = [];
+
+    protected override void OnInitialized()
+    {
+        today = Dates.Today(Clock);
+        available = Choices.Available().Count;
+        var groups = Holdings.Handle();
+        holders = groups.Count;
+        issued = groups.Sum(g => g.Count());
+        overdue = groups.Sum(g => g.Count(h => h.Overdue));
+        recent = History.Handle(new HistoryFilter()).Value!.Take(8).ToList();
+    }
+}

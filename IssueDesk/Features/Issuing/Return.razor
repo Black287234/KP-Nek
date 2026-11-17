@@ -1,0 +1,60 @@
+@page "/return"
+@inject ReturnEquipment Return
+@inject IssuingChoices Choices
+@inject TimeProvider Clock
+@inject Notice Notice
+@inject NavigationManager Nav
+
+<PageTitle>Возврат оборудования</PageTitle>
+<h1>Возврат оборудования</h1>
+<p class="lead">Фиксируется дата возврата и состояние оборудования; при неисправности опишите её в примечании.</p>
+
+<EditForm Model="form" OnValidSubmit="Submit" FormName="return" class="sheet form">
+    <DataAnnotationsValidator />
+    <NoticeBar Error="@error" />
+    <ValidationSummary class="notice bad" />
+    <div class="cols2">
+        <label class="full">Оборудование у сотрудника
+            <InputSelect @bind-Value="form.EquipmentId" id="equipment">
+                <option value="">выберите оборудование</option>
+                @foreach (var a in issued) { <option value="@a.EquipmentId">@a.Equipment!.InventoryNumber — @a.Equipment.Name (у @a.Employee!.ShortName с @a.IssuedOn.ToString("dd.MM.yyyy"))</option> }
+            </InputSelect>
+        </label>
+        @if (selected is { } s)
+        {
+            <p class="full muted" id="holder">Выдано @s.IssuedOn.ToString("dd.MM.yyyy") сотруднику @s.Employee!.FullName в состоянии «@Names.Of(s.IssuedCondition)»@(s.DueOn is { } d ? $", вернуть до {d:dd.MM.yyyy}" : "").</p>
+        }
+        <label>Дата возврата<InputDate @bind-Value="form.ReturnedOn" id="returned" /></label>
+        <label>Состояние при возврате
+            <InputSelect @bind-Value="form.Condition" id="condition">
+                @foreach (var c in Names.Conditions) { <option value="@c">@Names.Of(c)</option> }
+            </InputSelect>
+        </label>
+        <label class="full">Примечание<InputText @bind-Value="form.Note" id="note" maxlength="200" /></label>
+    </div>
+    <div class="actions"><button class="button" type="submit">Принять возврат</button></div>
+</EditForm>
+
+@code {
+    [SupplyParameterFromQuery] public int? Equipment { get; set; }
+    private ReturnForm form = new();
+    private List<Domain.Assignment> issued = [];
+    private string? error;
+    private Domain.Assignment? selected => issued.FirstOrDefault(a => a.EquipmentId == form.EquipmentId);
+
+    protected override void OnInitialized()
+    {
+        issued = Choices.Issued();
+        form = new ReturnForm { ReturnedOn = Dates.Today(Clock), EquipmentId = Equipment };
+        if (selected is { } s) form.Condition = s.IssuedCondition;
+    }
+
+    private void Submit()
+    {
+        var r = Return.Handle(form);
+        if (!r.Ok) { error = r.Error; return; }
+        var a = selected!;
+        Notice.Set($"Возврат принят: {a.Equipment!.InventoryNumber} от {a.Employee!.ShortName}, состояние — {Names.Of(form.Condition)}");
+        Nav.NavigateTo($"equipment/{a.EquipmentId}");
+    }
+}
