@@ -1,7 +1,9 @@
 """Проверка страниц: код ответа и наличие ожидаемого текста в разметке, сформированной на сервере.
+Blazor кодирует кириллицу в выводимых значениях (&#x...;), поэтому разметка предварительно декодируется.
 
 Использование: python3 tools/smoke.py http://localhost:5097
 """
+import html
 import sys
 import urllib.error
 import urllib.parse
@@ -25,9 +27,9 @@ PAGES = [
 def fetch(url):
     try:
         with urllib.request.urlopen(url, timeout=20) as r:
-            return r.status, r.read().decode("utf-8")
+            return r.status, html.unescape(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        return e.code, e.read().decode("utf-8", "replace")
+        return e.code, html.unescape(e.read().decode("utf-8", "replace"))
 
 
 def main():
